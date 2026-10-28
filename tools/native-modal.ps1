@@ -1,4 +1,4 @@
-param([string]$Title='Confirmar actualización de DocsHub',[string]$Button='Cancelar',[string]$Report)
+﻿param([string]$Title='Confirmar actualización de DocsHub',[string]$Button='Cancelar',[string]$Report)
 $ErrorActionPreference='Stop'
 Add-Type -AssemblyName UIAutomationClient
 Add-Type -AssemblyName UIAutomationTypes
@@ -18,4 +18,5 @@ while([DateTime]::UtcNow -lt $deadline){
   }
   Start-Sleep -Milliseconds 100
 }
-throw 'No apareció el diálogo nativo real de confirmación'
+if($Report){$names=@([System.Windows.Automation.AutomationElement]::RootElement.FindAll([System.Windows.Automation.TreeScope]::Children,[System.Windows.Automation.Condition]::TrueCondition)|ForEach-Object{$_.Current.Name});[System.IO.File]::WriteAllText(($Report+'.windows.json'),($names|ConvertTo-Json))}
+throw 'Native confirmation dialog was not found'

@@ -1,6 +1,7 @@
 // CI-only preload. Injected using NODE_OPTIONS; never shipped in the app package.
 if(process.type==='browser'){
  const fs=require('node:fs'),path=require('node:path');const electron=require('electron'),{app,BrowserWindow,dialog,session}=electron;
+ app.disableHardwareAcceleration();
  const qa=process.env.DOCSHUB_QA_HOME,root=process.env.DOCSHUB_QA_INSTALL;if(!qa||!root)throw Error('QA paths missing');fs.mkdirSync(qa,{recursive:true});
  const original=app.getPath.bind(app);app.getPath=k=>k==='appData'?path.join(qa,'profile'):original(k);
  const pkg=()=>JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
@@ -10,6 +11,7 @@ if(process.type==='browser'){
  dialog.showMessageBox=async(win,options)=>options.title==='Confirmar actualización de DocsHub'?{response:0}:realDialog(win,options);
  dialog.showOpenDialog=async()=>({canceled:false,filePaths:[process.env.DOCSHUB_QA_PATCH]});
  app.on('web-contents-created',(_event,wc)=>{
+  const load=wc.loadURL.bind(wc);wc.loadURL=(url,...args)=>/^https?:/i.test(url)?Promise.resolve():load(url,...args);
   const send=wc.send.bind(wc);wc.send=(channel,...args)=>{if(channel==='update-center-state'){try{fs.appendFileSync(path.join(qa,'progress.log'),JSON.stringify(args[0])+'\n');if(['installation','startup-check'].includes(args[0]?.stage)&&wc.getURL().includes('/.docshub-updates/'))capture(wc,'installer');}catch{}}return send(channel,...args);};
  });
  app.on('browser-window-created',(_event,win)=>{

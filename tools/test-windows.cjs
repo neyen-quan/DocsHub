@@ -16,7 +16,8 @@ function testPatch(base,directory,{fail=false}={}){
 async function modal(){
  const dir=path.join(qa,'modal');fs.mkdirSync(dir,{recursive:true});const {fixture,patch}=require(path.join(root,'tools/lib/update-fixture.cjs')),cleanups=[],f=fixture({after:fn=>cleanups.push(fn)});fs.cpSync(f.root,dir,{recursive:true});fs.writeFileSync(path.join(dir,'patch.zip'),patch(f));cleanups.forEach(fn=>fn());
  const report=path.join(qa,'native-modal.json'),env={...process.env};delete env.ELECTRON_RUN_AS_NODE;delete env.NODE_OPTIONS;
- const child=spawn(runtime,[path.join(tools,'modal-test-main.cjs'),dir,report],{env,stdio:['ignore',fs.openSync(path.join(qa,'modal.log'),'w'),fs.openSync(path.join(qa,'modal-error.log'),'w')]});
+ const child=spawn(runtime,[path.join(tools,'modal-test-main.cjs'),dir,report,'--disable-gpu','--enable-logging=stderr'],{env,stdio:['ignore',fs.openSync(path.join(qa,'modal.log'),'w'),fs.openSync(path.join(qa,'modal-error.log'),'w')]});
+ child.on('error',error=>fs.writeFileSync(path.join(qa,'modal-child.json'),JSON.stringify({error:error.message})));child.on('exit',(code,signal)=>fs.writeFileSync(path.join(qa,'modal-child.json'),JSON.stringify({code,signal})));
  try{const result=await waitFile(report,40000);assert.equal(result.ok,true,JSON.stringify(result));}finally{try{child.kill();}catch{}}
 }
 async function packaged(fail=false){

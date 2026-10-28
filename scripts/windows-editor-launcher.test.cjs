@@ -25,7 +25,7 @@ test('Fireworks launch sends a command script, waits for receipt and targets wor
   const file=path.join(directory,'foto de prueba.png');await fs.writeFile(file,'working');let request;
   const launch=createWindowsEditorLauncher({runWindows:async(action,args)=>{
     request={action,...args};const script=await fs.readFile(args.script,'ascii');let receipt;
-    vm.runInNewContext(script,{fw:{openDocument:url=>{assert.equal(url,fireworksFileURL(file));return {}; }},Files:{open:url=>{receipt=url.replace(/^file:\/\//,'');return {write:v=>require('node:fs').writeFileSync(receipt,v),close:()=>{}};}}});
+    vm.runInNewContext(script,{fw:{openDocument:url=>{assert.equal(url,fireworksFileURL(file));return {}; }},Files:{open:url=>{receipt=decodeURI(url.replace(/^file:\/\/\/([a-z])\|/i,'$1:').replace(/^file:\/\//,''));return {write:v=>require('node:fs').writeFileSync(receipt,v),close:()=>{}};}}});
   }});
   assert.equal(await launch('fireworks',file,'C:\\Fireworks 8\\Fireworks.exe'),true);assert.equal(request.action,'fireworks');assert.match(request.script,/\.jsf$/);assert.equal(request.executable,'C:\\Fireworks 8\\Fireworks.exe');
 });

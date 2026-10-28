@@ -96,6 +96,7 @@ jobs:
         if: always() && steps.plan.outputs.publish == 'true'
         with:
           name: DocsHub-pruebas-Windows
+          include-hidden-files: true
           path: |
             .qa/*.json
             .qa/*.log

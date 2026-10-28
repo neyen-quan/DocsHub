@@ -5,7 +5,7 @@ const os = require('node:os');
 const path = require('node:path');
 const {createClipchamp} = require('../electron/clipchamp.cjs');
 async function fixture(t) {
-  const root=await fs.mkdtemp(path.join(os.tmpdir(),'docshub-clipchamp-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));
+  const root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(),'docshub-clipchamp-')));t.after(()=>fs.rm(root,{recursive:true,force:true}));
   const folder=path.join(root,'project');await fs.mkdir(folder);const file=path.join(folder,'video de Rina.MP4');await fs.writeFile(file,'video bytes');
   const requests=[];const options={allowedPath:p=>p===folder||p.startsWith(folder+path.sep),runWindows:async(...args)=>requests.push(args)};
   return {root,folder,file,requests,options,edit:createClipchamp(options)};

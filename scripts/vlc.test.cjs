@@ -5,7 +5,7 @@ const path = require('node:path');
 const os = require('node:os');
 const {createVlc,VLC_EXECUTABLE,VLC_WINDOW_ARGUMENTS} = require('../electron/vlc.cjs');
 async function fixture(t) {
-  const root=await fs.mkdtemp(path.join(os.tmpdir(),'docshub-vlc-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));
+  const root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(),'docshub-vlc-')));t.after(()=>fs.rm(root,{recursive:true,force:true}));
   const folder=path.join(root,'docs');await fs.mkdir(folder);const file=path.join(folder,'video con espacios & acentos á.MP4');await fs.writeFile(file,'original video');
   const calls=[];const options={allowedPath:p=>p.startsWith(folder+path.sep),launch:async(...args)=>calls.push(args)};
   return {root,folder,file,calls,options,edit:createVlc(options)};

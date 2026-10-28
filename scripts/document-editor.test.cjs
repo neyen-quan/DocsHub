@@ -6,7 +6,7 @@ const path = require('node:path');
 const {createDocumentEditor} = require('../electron/document-editor.cjs');
 const {createDocumentUndo} = require('../electron/document-undo.cjs');
 async function fixture(t) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'docshub-editor-test-'));
+  const root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'docshub-editor-test-')));
   t.after(() => fs.rm(root, {recursive:true,force:true}));
   const folder = path.join(root,'documents'); await fs.mkdir(folder);
   const original = path.join(folder,'foto.png'); await fs.writeFile(original,'original bytes');

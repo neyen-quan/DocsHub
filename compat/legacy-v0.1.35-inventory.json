@@ -1,0 +1,602 @@
+{
+  "product": "DocsHub",
+  "version": "0.1.35",
+  "files": {
+    "INICIAR-WORKHUB2.bat": {
+      "size": 384,
+      "sha256": "9cb4237bf53bc2e09ad782dd70ced5a2f5181652bce10d8c7811b9ccc62176df"
+    },
+    "LEEME.txt": {
+      "size": 19115,
+      "sha256": "abe0391f8e6b50ab70ea05978ab3f280ca370bdd7853f09cc5652ae3bd69c2f3"
+    },
+    "dist/assets/main.css": {
+      "size": 67593,
+      "sha256": "fc662e4a6de598c1aa4738d4694b1af406c10d7fee9a207a889bd7ae5dd93240"
+    },
+    "dist/assets/main.js": {
+      "size": 256756,
+      "sha256": "f7239e1e1bdb58ade5a69d0793d02bfc34561b05432f3e12a0f7df08d7b80032"
+    },
+    "dist/index.html": {
+      "size": 348,
+      "sha256": "5b0e4a43bf1d710afbfd83f16b09739a574055a528f6361470c385b59d365920"
+    },
+    "electron/attachment-drag.cjs": {
+      "size": 3452,
+      "sha256": "d46005aeaf6cb848c78b5900f1ece054e648c5357f89bd259ddcfd46a3fb6ecc"
+    },
+    "electron/attachment-preload.cjs": {
+      "size": 3617,
+      "sha256": "607991961bf62fb774e25f692c2c164b2c9f89a53698ff8a867bd9f7a3c5bb7e"
+    },
+    "electron/file-clipboard.ps1": {
+      "size": 2327,
+      "sha256": "e2a3d746d36cdba13282503ae2db19c27c4ad627c1160e5a7a76a680eedd6db2"
+    },
+    "electron/main.cjs": {
+      "size": 85123,
+      "sha256": "72527ee877f9a2c1953b3ffcd2ebc4d7609c2afa2d3c017e707868e1aa32e8a6"
+    },
+    "electron/native-file-drag.ps1": {
+      "size": 1308,
+      "sha256": "6dac155861b7a0ad494bfd4dc18c7da1bcc197a9be837d91fdcc52632c53c1a4"
+    },
+    "electron/preload.cjs": {
+      "size": 6164,
+      "sha256": "123b9bbe96d4a2d552de916ae66bb7d35ae7d4e09bc4369244d7b579fdfba265"
+    },
+    "electron/splitter-preload.cjs": {
+      "size": 1411,
+      "sha256": "60534da120f92760a928a7318c745509b90ae2ddd4c03e69a45f37115926a91f"
+    },
+    "electron/zip-files.ps1": {
+      "size": 4999,
+      "sha256": "7b29247add97adf79b754144ca962d565bd0ec5706b7bb13ecb5afe3507e399b"
+    },
+    "index.html": {
+      "size": 299,
+      "sha256": "29c37f2a0d00b6b2832acb4a2fc06dd04a8ec8ca5bb57a10862b757b3348fe93"
+    },
+    "package-lock.json": {
+      "size": 152467,
+      "sha256": "f87a7173f3e5e41a78ef870785abb948606f7a6eb1efe6b34f9964fb11be43fb"
+    },
+    "package.json": {
+      "size": 1483,
+      "sha256": "054ff4fcd1e074a74f85b1b792de4f46cfd5f8f01f2b2396f9e4a2fc25cfc991"
+    },
+    "runtime/LICENSE": {
+      "size": 1096,
+      "sha256": "5154e165bd6c2cc0cfbcd8916498c7abab0497923bafcd5cb07673fe8480087d"
+    },
+    "runtime/LICENSES.chromium.html": {
+      "size": 20472830,
+      "sha256": "7b328b8c7463ac9bfc7dc648c751533517c8441a0b5b21047d6c0b2620e60d70"
+    },
+    "runtime/Workhub2.exe": {
+      "size": 245956096,
+      "sha256": "c2d88408954d7b62cba8a4d5dae8d02c05b41936507b4370caf17b6ecc183c37"
+    },
+    "runtime/chrome_100_percent.pak": {
+      "size": 719654,
+      "sha256": "ab7c4b7b6cb8832a31d44b95ec50ce52294f49422a3bdde4e21968eca2930cbe"
+    },
+    "runtime/chrome_200_percent.pak": {
+      "size": 1269017,
+      "sha256": "30fa4a6e27c9ff2fb0f939f01158477e621a67d86e9ecb84cf11b3947db8eb9d"
+    },
+    "runtime/d3dcompiler_47.dll": {
+      "size": 4741488,
+      "sha256": "a05f99734f7c4822fefc12b367af21fd0976ed6608752fb1e1e80b6ece7ecbbb"
+    },
+    "runtime/dxcompiler.dll": {
+      "size": 25745408,
+      "sha256": "5c81fbe3073c85979d6138e71a18650883aa8d58f717002fc25a52a6f7e5f8e1"
+    },
+    "runtime/dxil.dll": {
+      "size": 1509760,
+      "sha256": "77e039c905030a641e53658a008b74e90635a5ea9b6b79eabd0f2003bdfca59a"
+    },
+    "runtime/ffmpeg.dll": {
+      "size": 3113472,
+      "sha256": "531c15341c56ad740f6235da7cac37f7775d049de708ccb6f49b54edf60b060d"
+    },
+    "runtime/icudtl.dat": {
+      "size": 10876560,
+      "sha256": "9f48c7f9c7c94d516a14870707e910ab94d75ae640ff6842c4af53276cd26ebe"
+    },
+    "runtime/locales/af.pak": {
+      "size": 636155,
+      "sha256": "3017b141bd16e24190d810f0748612f0fd4352ca8553002b9a63a7f77f7154f8"
+    },
+    "runtime/locales/am.pak": {
+      "size": 1029450,
+      "sha256": "67b938d162bc75db067120bb8366b5bafd9a75fa99a0ca9ad4f46b47d1d37634"
+    },
+    "runtime/locales/ar.pak": {
+      "size": 1130919,
+      "sha256": "4c47004abd0969cb1174d06eb7429c024872207960986afbf3cae37e339a8d01"
+    },
+    "runtime/locales/bg.pak": {
+      "size": 1178203,
+      "sha256": "2eb9c74c67e4b13b45a73061fa978738e335bc245da71bab0ea9b205fe91074e"
+    },
+    "runtime/locales/bn.pak": {
+      "size": 1513545,
+      "sha256": "415621a5c0b1546e6e447d43b76414425a8703cc7681d637ec1f283ad0c787e7"
+    },
+    "runtime/locales/ca.pak": {
+      "size": 716908,
+      "sha256": "6f28297c1ccb628f534d65dade167ae559f83eace359acf47e48ff890b9409d5"
+    },
+    "runtime/locales/cs.pak": {
+      "size": 743351,
+      "sha256": "799a789ce531991cb975425730db310f9a8fe74091eee568f3e65fcc7ef0cd57"
+    },
+    "runtime/locales/da.pak": {
+      "size": 666471,
+      "sha256": "530fd95daee21d793b99492ca7d0bf9979daffe42944e24414d4b08a3d23b9fe"
+    },
+    "runtime/locales/de.pak": {
+      "size": 717862,
+      "sha256": "58165025c4252ba8b2ce8203b59362b9968938cb0fef9d7da04941be22f41bb3"
+    },
+    "runtime/locales/el.pak": {
+      "size": 1295538,
+      "sha256": "37d2e1ef69fea9bdb1e0902cbc61a458baa9009fc3761029bd1c1882a7a0c9b2"
+    },
+    "runtime/locales/en-GB.pak": {
+      "size": 580030,
+      "sha256": "01d9200a5daee1770f7147b166d25baa6a8dd72c138c3c526421e656dec789f5"
+    },
+    "runtime/locales/en-US.pak": {
+      "size": 586582,
+      "sha256": "23b271e8009bfa14783700cd0712b4ecaa5b8f2ea28a4d81ae1d7e05bc0c96b1"
+    },
+    "runtime/locales/es-419.pak": {
+      "size": 707627,
+      "sha256": "2766fd52da83ff679346313e66440f013a7d478b9be946df4ab197505912450b"
+    },
+    "runtime/locales/es.pak": {
+      "size": 703941,
+      "sha256": "fe6fff51ef19db1f4fe0fc602e0bd4bd7fabcfb1ca5d6896d1ce0efcf37e49c4"
+    },
+    "runtime/locales/et.pak": {
+      "size": 642216,
+      "sha256": "dd1205eae606f12510e24ce39f301439c98b3293d766ca5839dc292a14d7973c"
+    },
+    "runtime/locales/fa.pak": {
+      "size": 1063069,
+      "sha256": "ba33624ccad6d0e4a4339589c56be557b28968bf9422bd12a8f26e2a3d581577"
+    },
+    "runtime/locales/fi.pak": {
+      "size": 655113,
+      "sha256": "1f3123d7fb5c22a95b5250ea17450b665c3c6cd6a6dfd28bbdde15e1bf684a0e"
+    },
+    "runtime/locales/fil.pak": {
+      "size": 741385,
+      "sha256": "02e2c70d3d85b0deb677a9ae576ae3cf89e80774532cb3315c14f1e8ce64b310"
+    },
+    "runtime/locales/fr.pak": {
+      "size": 763461,
+      "sha256": "8bad7fd88072ac66649dd9307da9163962f8ab00313e627bf1c5ca4450a48b4a"
+    },
+    "runtime/locales/gu.pak": {
+      "size": 1495625,
+      "sha256": "e86e8c240d4b6283abb03c49df9e8899607ef9def6d4933c7a541d63b5835271"
+    },
+    "runtime/locales/he.pak": {
+      "size": 928748,
+      "sha256": "ddc1f304ab1f4489d19ae2b31e7f8e3ffb47dae439520159e8975422c65e4115"
+    },
+    "runtime/locales/hi.pak": {
+      "size": 1586602,
+      "sha256": "015b3856dc05e8635a48e749e6970fe43f5d620b8dbd04e5abff586178213f6e"
+    },
+    "runtime/locales/hr.pak": {
+      "size": 715279,
+      "sha256": "d46c64ae8af3562e37eb80438aa2bee228fafda251d58ba4d0991291f1c72aab"
+    },
+    "runtime/locales/hu.pak": {
+      "size": 765640,
+      "sha256": "0a46fc8d50f74effd1cfe1979e677df3de6fc47e6b551267303d93d57bd83f50"
+    },
+    "runtime/locales/id.pak": {
+      "size": 635080,
+      "sha256": "f567569c42a25bb2dfc5c33e13aac558c0e2a1d5d4b969592bbd0841b36438db"
+    },
+    "runtime/locales/it.pak": {
+      "size": 693991,
+      "sha256": "aeb1d99a2a09476d9ee0fd133df2d4d987c731b9f91a248ac4e60377ddda1ca5"
+    },
+    "runtime/locales/ja.pak": {
+      "size": 842053,
+      "sha256": "f6e0d8eda3bc8f1112494bda96b230f3c44f054c47cced50c94c5ee9199f04c6"
+    },
+    "runtime/locales/kn.pak": {
+      "size": 1720240,
+      "sha256": "af5fed2130102ecc0c878059c88faed9d6db2e8b147fb5ae9e15e3fe69706c8a"
+    },
+    "runtime/locales/ko.pak": {
+      "size": 718705,
+      "sha256": "55a3a8db9c84b1fe9e50b56d68fb069ad7546117cf1f6cb89f36f49cc044ad5e"
+    },
+    "runtime/locales/lt.pak": {
+      "size": 777281,
+      "sha256": "af969f4407c190dd01a426fa1244cb1ec7cdf2909d1c3ba5b87ff662ba567303"
+    },
+    "runtime/locales/lv.pak": {
+      "size": 774733,
+      "sha256": "4455ab7c06172c2c80796a99558e41f452cc3b33be76654d70440cf4ac7a2d34"
+    },
+    "runtime/locales/ml.pak": {
+      "size": 1767850,
+      "sha256": "b5606265910e45098a88e989202a550531f6d00333c6b112ed4c5cbc07b2ff6a"
+    },
+    "runtime/locales/mr.pak": {
+      "size": 1467313,
+      "sha256": "8465d4077ed5414cbcb7d9bdb00d85e515a1a069703cdc1d4d67c9d6e5623fb0"
+    },
+    "runtime/locales/ms.pak": {
+      "size": 668356,
+      "sha256": "af7021a00befa586aa067ae3ccb339079e6f13ee0cab1621836f6abb608b6f2a"
+    },
+    "runtime/locales/nb.pak": {
+      "size": 638121,
+      "sha256": "d97a2b0cbe6adc99add2ed3ce0d15d0bb124b778086c466c126634d60ea72608"
+    },
+    "runtime/locales/nl.pak": {
+      "size": 664759,
+      "sha256": "b642c8ab5ce11438e9a8fd4639244fa8f1d55cfd70269565490bc55ee907b048"
+    },
+    "runtime/locales/pl.pak": {
+      "size": 742064,
+      "sha256": "8a0969fc743d3e2f5111387d53c0d79e8c1d9f68256ad6553b87fca2bcaa7e6e"
+    },
+    "runtime/locales/pt-BR.pak": {
+      "size": 697019,
+      "sha256": "5546559a56f9ac3191062c3fd42defd190a68e78ac988eb57fa5a6fd2dc5f874"
+    },
+    "runtime/locales/pt-PT.pak": {
+      "size": 701056,
+      "sha256": "bdfa7264dddf70f936f1785737969559a577b51d1952c820a468c611d18b17ca"
+    },
+    "runtime/locales/ro.pak": {
+      "size": 728144,
+      "sha256": "1e6b5b0dac63a9e951daf523de310f6bd9e5c53e281f37706d41bd35d2a08bb5"
+    },
+    "runtime/locales/ru.pak": {
+      "size": 1200985,
+      "sha256": "a9e76536472c45b39e7ae2af5f3ae1bc0e50a11646efdb6fb3ca373b5f2e2c70"
+    },
+    "runtime/locales/sk.pak": {
+      "size": 755481,
+      "sha256": "3cdc8bca8696c90a572fb15c865caa5c286df45344c72194c3eea97201cc816a"
+    },
+    "runtime/locales/sl.pak": {
+      "size": 722720,
+      "sha256": "e1371c8df577b979e3a515af34b0aaa3d07153c7a5c55d39a9b49a7ffe62d3d2"
+    },
+    "runtime/locales/sr.pak": {
+      "size": 1112909,
+      "sha256": "c42a674e3f43aa70cef005931915c8b7ceb34b29566fba3309f8da931dc7861f"
+    },
+    "runtime/locales/sv.pak": {
+      "size": 646543,
+      "sha256": "7b0399a206bfbebe77d1a4fc598c8a6636a1bd940d3ab56519cf4af0134b6edb"
+    },
+    "runtime/locales/sw.pak": {
+      "size": 685127,
+      "sha256": "bd41ea707a0d90d683ec8d5d0f0c79f3e925747bc4ea1982562dfb75080199b9"
+    },
+    "runtime/locales/ta.pak": {
+      "size": 1758067,
+      "sha256": "91fb1460711df108d8d435a378c8be1d1e80b0886c0158d8c6ae92f35812681b"
+    },
+    "runtime/locales/te.pak": {
+      "size": 1629379,
+      "sha256": "fc8c2706c5dfd36e7af8e380a240e0f697cc5fe969b512092a2185896512c4af"
+    },
+    "runtime/locales/th.pak": {
+      "size": 1368866,
+      "sha256": "c1f4235c31bc05153230b0e55b7aabc9020d7460d5b0a025c386885e1e4bda3c"
+    },
+    "runtime/locales/tr.pak": {
+      "size": 697394,
+      "sha256": "d5648d7eaf1826211fb244fcf8419dabdc16c228d92139bc8b0b73c7a6b7e700"
+    },
+    "runtime/locales/uk.pak": {
+      "size": 1211563,
+      "sha256": "ec5d0b426e289c064e8f2d63636ae2a544ff30fc1e99dde04fe1920971e4d060"
+    },
+    "runtime/locales/ur.pak": {
+      "size": 1047994,
+      "sha256": "c218e21744df2ff0669a87d497d65d76333073577360d4c662c592de146bf82a"
+    },
+    "runtime/locales/vi.pak": {
+      "size": 830014,
+      "sha256": "76a32f8ad5d08a6f9899e12e4aa9b3d9a9023931e2ca0f73e5ced541c922dcfb"
+    },
+    "runtime/locales/zh-CN.pak": {
+      "size": 592081,
+      "sha256": "7887bd3d01e12306e32a11d9a20566ca0e93688a0375e6ff59da04cf782b1681"
+    },
+    "runtime/locales/zh-TW.pak": {
+      "size": 583887,
+      "sha256": "7cb5f76e54a548d4e52aa8cdf226a4339bdadc304897abca690f407e95e42f4d"
+    },
+    "runtime/resources/default_app.asar": {
+      "size": 110862,
+      "sha256": "0eb2491b0a9ac94790389d39c09dd5005c6c1f0665842943829bbd0193f6cc4f"
+    },
+    "runtime/resources.pak": {
+      "size": 12435875,
+      "sha256": "ee5707e9409e76742e1dacdae0ebbb3c567b8772ce5bbcb9785aa215f5784c22"
+    },
+    "runtime/snapshot_blob.bin": {
+      "size": 368768,
+      "sha256": "132b5c838d93d5067c1de721b1b4d906b59289b3bb0a407925c228e621901a9a"
+    },
+    "runtime/v8_context_snapshot.bin": {
+      "size": 742200,
+      "sha256": "d11a9fff344e9a6d067243ef85d4064716ea378098894f9a21bf8a1eeca66e53"
+    },
+    "runtime/version": {
+      "size": 6,
+      "sha256": "e727b66055185a4fa318b0ccbe7b56ea8aa267238987e56182c2516169ff65c5"
+    },
+    "runtime/vk_swiftshader.dll": {
+      "size": 5520384,
+      "sha256": "0fce2e3151351587c552df0ad368aefd833be1a134bbfe1f470442b12e0710fa"
+    },
+    "runtime/vk_swiftshader_icd.json": {
+      "size": 106,
+      "sha256": "32d83ff113fef532a9f97e0d2831f8656628ab1c99e9060f0332b1532839afd9"
+    },
+    "runtime/vulkan-1.dll": {
+      "size": 939520,
+      "sha256": "7c5fd19a52eeb8dbfedb2877aec128d3c07574fe2cc644502d125a0291286796"
+    },
+    "scripts/ai-layout-regression.test.cjs": {
+      "size": 17515,
+      "sha256": "891f55099e9217b3f0444849b35061f57604d08c277f0a527384dd284cb8f4ca"
+    },
+    "scripts/isolation.test.cjs": {
+      "size": 3543,
+      "sha256": "92e8e94df2eb61aaca58ed2514132517ec45c198b31b9f6398438438ab963080"
+    },
+    "src/main.jsx": {
+      "size": 117389,
+      "sha256": "c2774f1dc4222150fa09ff92bc28d0208b43df082835ced6f66aa69ca28dada3"
+    },
+    "src/style.css": {
+      "size": 62032,
+      "sha256": "10fbd959287e4fea023a8353506edbe9e3b013e175f0a8d4c85a9e851fa52767"
+    },
+    "vite.config.js": {
+      "size": 205,
+      "sha256": "c0faf2f1034e1df8657d0aad4883db2582263e24c2cf0a7f520e33a235f5fd28"
+    },
+    "INICIAR-DOCSHUB.bat": {
+      "size": 51,
+      "sha256": "9aa767752fcacbf8fd8a9c385b767748a0f9b9424aefde61c86c5746e4c2747c"
+    },
+    "DocsHub.exe": {
+      "size": 65024,
+      "sha256": "6f19c5426c3f12cb01c8b3b6ace903c7bbed72be0ebc45253f8228eedee04a93"
+    },
+    "assets/docshub.svg": {
+      "size": 696,
+      "sha256": "87111bc2c7d64c1de37a2be200e9eb87c3e2e45d2eb88cd536930feebda07194"
+    },
+    "assets/docshub.png": {
+      "size": 11455,
+      "sha256": "e5186cf92a8fb82b3671c687d0a8a711a76997d9c8736a5cd2ef9d30a3d6c220"
+    },
+    "assets/docshub.ico": {
+      "size": 22505,
+      "sha256": "52569d60b1c313d0581880d83366dde3e1afd7a2741c9f45ffbe10230ba75636"
+    },
+    "shared/rina-model.cjs": {
+      "size": 6491,
+      "sha256": "bc9b35d7b9bbef951c8cac29de499e07073b2f50b54d740677626cbbb5ff09dd"
+    },
+    "scripts/gpt-clipboard.test.cjs": {
+      "size": 4883,
+      "sha256": "cd3f70deb5267c41fd178b3bca69b0d1579661de0e5b3bc8ed08b5c57f3e6fd6"
+    },
+    "scripts/document-tab-order.test.cjs": {
+      "size": 1074,
+      "sha256": "7f2c81b95568581063d0679ea96143407abd1151b6971843d2dc20a4af9b7e95"
+    },
+    "scripts/document-move.test.cjs": {
+      "size": 2076,
+      "sha256": "cd986b85ac1d2abc4a9645b024199dad50ac45acb869c49458c5ceedd77ff98b"
+    },
+    "scripts/desktop-update.test.cjs": {
+      "size": 7876,
+      "sha256": "99d64d748a49fa0fe976d0c1988c6727c99ba26a8dd539e7b1c14df25bf26246"
+    },
+    "scripts/startup-display.test.cjs": {
+      "size": 1705,
+      "sha256": "16cb74632acf570170e89851593364344366f6b7e101c6b3f5fa400451e3d11b"
+    },
+    "scripts/create-desktop-patch.py": {
+      "size": 2058,
+      "sha256": "557d0ebfc49d23379847ef880be7d9e46fe95fc702709481c9b2ff5a5aff8f29"
+    },
+    "scripts/document-media.test.cjs": {
+      "size": 6495,
+      "sha256": "74d5ce1d57b2d389bcb87a493248af1c8fb29a0ae28b3a7cfda0a6c51b9e52ad"
+    },
+    "scripts/windows-editor-launcher.test.cjs": {
+      "size": 3327,
+      "sha256": "85e5c51793a5c415f994e5fd66a5c3a895600d34423ba3c2932f2accca0ebadb"
+    },
+    "scripts/document-rename.test.cjs": {
+      "size": 4145,
+      "sha256": "e84f89482d5709f80d35b1623b861e3d4e7831f847db2306da9566d26514c4aa"
+    },
+    "scripts/document-undo.test.cjs": {
+      "size": 3053,
+      "sha256": "d8414c4b9e1e381ed2157b473e307cce3d86f71ac1ba73d44c25aa2c2fc09295"
+    },
+    "scripts/image-compare.test.cjs": {
+      "size": 3794,
+      "sha256": "b87c1a8deef049e7cdb8df24373d392fd699195cb93d48430d6f702687c07620"
+    },
+    "scripts/clipchamp.test.cjs": {
+      "size": 2224,
+      "sha256": "36ec9549cd76a78473cf3345d4182065b80c78777298a5241e664873e904b837"
+    },
+    "scripts/image-group-drag.test.cjs": {
+      "size": 2959,
+      "sha256": "ca5f817db459951bb641df25ec1db204f6787e796f8ee1edbc836b9beb4de742"
+    },
+    "scripts/desktop-update-ipc.test.cjs": {
+      "size": 2123,
+      "sha256": "f60643c971476bb46754da57e8b8980144800e2fbf6bbb14428f1104ee33b79c"
+    },
+    "scripts/rina-accounts.test.cjs": {
+      "size": 5724,
+      "sha256": "d3b401c0853f600de44c5af7dc9086060de9e9e1fa3f66f05749423ec9cc956e"
+    },
+    "scripts/document-editor.test.cjs": {
+      "size": 7654,
+      "sha256": "d5045f967bfa75f7e63965992ba7ae85bc4a3a86cc734398ebe8386ea092d6c2"
+    },
+    "scripts/metadata-downloads.test.cjs": {
+      "size": 2949,
+      "sha256": "1f8b5d6a444a1c20256ef512f952570d33e73eef03615778ffff16bb1c5de06b"
+    },
+    "scripts/vlc.test.cjs": {
+      "size": 3371,
+      "sha256": "73fd35a918a34542db27ed94a1f74729094533b9caa5b34d268a0f822c306f0c"
+    },
+    "native/docshub-launcher.rc": {
+      "size": 573,
+      "sha256": "60a0f7eb899c6522e9d0bd68be13189ac0af2f7e38f642761622ca23d9f7257a"
+    },
+    "native/docshub-launcher.c": {
+      "size": 1898,
+      "sha256": "c1a1eb8e04d41e11c1d675cbef1f20875dca675ccf6b2c1446b4fad5f8723aad"
+    },
+    "electron/metadata-downloads.cjs": {
+      "size": 2578,
+      "sha256": "2f0f4ae52eb7da4765ce67785686f2f67906dd63c735ded85f02ff78adb749fa"
+    },
+    "electron/desktop-update-ipc.cjs": {
+      "size": 4165,
+      "sha256": "9e86012157dad34830cf478a52e43112c5c30e31d6b290cc873bd33c3ad12c8e"
+    },
+    "electron/desktop-bootstrap.cjs": {
+      "size": 3177,
+      "sha256": "949549df56d9bed76aaff5657d33c7898a7fd50ce4a0cfddc8bc6d6fcfdd5522"
+    },
+    "electron/vlc.cjs": {
+      "size": 1932,
+      "sha256": "dad850bcd1da0bc6879473de4752c2890b76f69da5b03826611a36bd25812eeb"
+    },
+    "electron/document-rename.cjs": {
+      "size": 1597,
+      "sha256": "682795f21d45530f07a3b6a5679a6420a7670cc3de257686852399cc484e5097"
+    },
+    "electron/image-compare.cjs": {
+      "size": 6515,
+      "sha256": "e26386f5f2e53aa35ddf70317d6383e8af5c62e88e84ff93b77114016f997d50"
+    },
+    "electron/desktop-update-worker.cjs": {
+      "size": 2969,
+      "sha256": "bce37cdf2f10d79cecd4f21fef1bdc662e635f9e17d0230bb3b6e97747317c14"
+    },
+    "electron/editor-window-monitor.cjs": {
+      "size": 1091,
+      "sha256": "28071540086f898596f046a509e2bb2e1c0ef1f5c0646fbcb4e0674b9715c958"
+    },
+    "electron/gpt-clipboard.cjs": {
+      "size": 7185,
+      "sha256": "b9f7e0be9cd5032bf5599c98f123f6e369f0ae7f0da8b284f17073e4a297bbad"
+    },
+    "electron/image-viewer.js": {
+      "size": 4602,
+      "sha256": "cfcb5d87f30681a3cef2b30ed383986bae4528f558ef38457dfcf36e90fd97f6"
+    },
+    "electron/clipchamp.ps1": {
+      "size": 4949,
+      "sha256": "851f058111d7f5fcf0c811e6bd3bd400c2c830b09a39858e68383a78c5aac2fc"
+    },
+    "electron/windows-editor-launcher.cjs": {
+      "size": 2375,
+      "sha256": "af7267b075c7b8622950951a1451cfa493b4f974348274e6c5836f178519481d"
+    },
+    "electron/rina-ipc.cjs": {
+      "size": 2832,
+      "sha256": "2bbce793fa432cc79f7818bd956648fc06ebc014332c6768567fad6ca0e04a83"
+    },
+    "electron/document-undo.cjs": {
+      "size": 3228,
+      "sha256": "17c722fe9a417d400346c7d009e535dddbca63a357e626f657027f6e7d177e64"
+    },
+    "electron/image-viewer.html": {
+      "size": 909,
+      "sha256": "42665b2863e542463213907555240410431dfd6c815ab7f68b6e05a880312cc1"
+    },
+    "electron/vlc-window.ps1": {
+      "size": 3388,
+      "sha256": "79ec815dde03abacb8320dc733b0d72dccc24145cbb905ffd5efaf150c4a15b3"
+    },
+    "electron/document-editor.cjs": {
+      "size": 10725,
+      "sha256": "ee7b8d87e8aa0a5df96f225042563cd0d7aed5a17780bc068d1b08fb0fb7cd71"
+    },
+    "electron/document-media.cjs": {
+      "size": 5058,
+      "sha256": "a1dbd70b70954dd7b9e250102058c5527836ced063ebea8996e7adc2dd35c30d"
+    },
+    "electron/rina-store.cjs": {
+      "size": 3165,
+      "sha256": "9b602e24d1feb5abfff6c820da7629017c79f026f7b85b394a3598395a37e13d"
+    },
+    "electron/document-editor.ps1": {
+      "size": 3648,
+      "sha256": "4869965c628754a4fb620d992d28ab7c5483d9b292283f1be1e634cf86d1621d"
+    },
+    "electron/desktop-update.cjs": {
+      "size": 9973,
+      "sha256": "613122559666930d6e977cfe0fd31318acaef5d2d6ac2ce9c5879c3f26262e07"
+    },
+    "electron/image-viewer-preload.cjs": {
+      "size": 338,
+      "sha256": "80ef6afa707cf482b4e83e570185f75741deb96b7ef4c7083741d0e57d3b3192"
+    },
+    "electron/image-viewer.css": {
+      "size": 998,
+      "sha256": "68a95a90ade7289376c50c842355ea8a5862dd9eb7a9417f3a735cd8d6bc3d4f"
+    },
+    "electron/clipchamp.cjs": {
+      "size": 811,
+      "sha256": "410e5121da3ac46ae2b4f8a173cbe9000f6292b6d6e24be75f304cd0c702e6f7"
+    },
+    "electron/editor-window-monitor.ps1": {
+      "size": 3455,
+      "sha256": "bcce21430f2b0494910fb47f2b5232d0d201e9b686bbb5745d547f4e2db5f504"
+    },
+    "src/DocumentSelectionArea.jsx": {
+      "size": 3978,
+      "sha256": "651c29dc7b8eb31b9ac5c7255b002536b390f3c755484785cfe2cbc8f82cf18a"
+    },
+    "src/rina-accounts.css": {
+      "size": 8647,
+      "sha256": "8dcbc87dfd73fe6a511ff1a5aeab9eb9607c5924a94fb31791731e966cad41c2"
+    },
+    "src/RinaAccounts.jsx": {
+      "size": 16686,
+      "sha256": "65ac794af527b08f040713a02531209ae0684d8be8608f364ffafec576d39f4b"
+    },
+    "dist/assets/docshub.svg": {
+      "size": 696,
+      "sha256": "87111bc2c7d64c1de37a2be200e9eb87c3e2e45d2eb88cd536930feebda07194"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+DOCSHUB
+
+Abrir DocsHub.exe desde su carpeta. Puede fijarse en la barra de tareas o
+crearse un acceso directo. No mover solo el EXE: conservar sus carpetas.
+
+ACTUALIZAR
+Actualizar programa > Buscar actualizaciones > Descargar e instalar.
+El canal GitHub queda guardado y puede cambiarse. Se mantienen las sesiones,
+carpetas, preferencias y Cuentas Rina. Guardar formularios antes de actualizar.
+El instalador permanece visible durante instalación, arranque y recuperación.
+
+ALTERNATIVAS
+Instalar ZIP local permite elegir un parche ya descargado sin extraerlo.
+Paquete completo descarga la instalación para una PC nueva o reparación;
+no es un parche y se guarda separado.
+
+RECUPERACION
+Si se corta una actualización, abrir DocsHub.exe para continuar o recuperar
+la versión previa. No borrar .docshub-updates mientras haya una operación
+pendiente. La carpeta del programa debe permitir escritura.
+
+DATOS
+Los datos siguen en el perfil local Neyen.Workhub2 dentro de AppData.
+Las carpetas de trabajo se conservan donde fueron elegidas.
+Cuentas Rina guarda al pulsar Guardar gasto; sus respaldos externos y CSV
+se generan desde sus propios botones.

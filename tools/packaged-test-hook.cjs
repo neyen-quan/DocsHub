@@ -1,6 +1,8 @@
 // CI-only preload. Injected using NODE_OPTIONS; never shipped in the app package.
+if(process.env.DOCSHUB_QA_HOME){const fs=require('node:fs'),path=require('node:path');fs.mkdirSync(process.env.DOCSHUB_QA_HOME,{recursive:true});fs.appendFileSync(path.join(process.env.DOCSHUB_QA_HOME,'hook-bootstrap.log'),JSON.stringify({pid:process.pid,type:process.type,argv:process.argv,electron:process.versions.electron,nodeMode:process.env.ELECTRON_RUN_AS_NODE})+'\n');}
 if(process.type==='browser'){
  const fs=require('node:fs'),path=require('node:path');const electron=require('electron'),{app,BrowserWindow,dialog,session}=electron;
+ process.on('uncaughtException',error=>{fs.writeFileSync(path.join(process.env.DOCSHUB_QA_HOME,'uncaught.json'),JSON.stringify({error:error.stack}));app.exit(1);});
  app.disableHardwareAcceleration();
  const qa=process.env.DOCSHUB_QA_HOME,root=process.env.DOCSHUB_QA_INSTALL;if(!qa||!root)throw Error('QA paths missing');fs.mkdirSync(qa,{recursive:true});
  const original=app.getPath.bind(app);app.getPath=k=>k==='appData'?path.join(qa,'profile'):original(k);

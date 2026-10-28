@@ -24,7 +24,7 @@ async function packaged(fail=false){
  const home=path.join(qa,fail?'rollback':'install'),install=path.join(home,'DocsHub á space');fs.mkdirSync(home,{recursive:true});fs.cpSync(built,install,{recursive:true});const patch=testPatch(install,home,{fail});
  const profile=path.join(home,'profile','Neyen.Workhub2');fs.mkdirSync(profile,{recursive:true});fs.writeFileSync(path.join(profile,'metadata-downloads.json'),JSON.stringify({destination:path.join(home,'downloads')}));fs.mkdirSync(path.join(profile,'document-undo'),{recursive:true});fs.writeFileSync(path.join(profile,'document-undo/history.json'),'[]');
  const env={...process.env,NODE_OPTIONS:'--require "'+path.join(tools,'packaged-test-hook.cjs')+'"',DOCSHUB_QA_HOME:home,DOCSHUB_QA_INSTALL:install,DOCSHUB_QA_PATCH:patch.file,DOCSHUB_QA_FROM:patch.from};delete env.ELECTRON_RUN_AS_NODE;
- const child=spawn(path.join(install,'DocsHub.exe'),[],{cwd:os.tmpdir(),env,stdio:'ignore'});child.on('error',e=>{throw e;});
+ const child=spawn(path.join(install,'DocsHub.exe'),[],{cwd:os.tmpdir(),env,stdio:'ignore'});child.on('error',e=>fs.writeFileSync(path.join(home,'launcher-error.json'),JSON.stringify({error:e.stack})));child.on('exit',(code,signal)=>fs.writeFileSync(path.join(home,'launcher-exit.json'),JSON.stringify({code,signal}))); 
  try{
   const initialFile=path.join(home,'launch-'+patch.from+'.json');const initial=await waitFile(initialFile);const initialTime=fs.statSync(initialFile).mtimeMs;assert.equal(initial.ok,true);assert.equal(initial.amount,1234);assert.equal(initial.local,'retained');assert.equal(initial.cookie,'retained');
   let result;const deadline=Date.now()+90000;while(Date.now()<deadline){const file=path.join(install,'.docshub-updates/result.json');if(fs.existsSync(file)){result=JSON.parse(fs.readFileSync(file,'utf8'));break;}
@@ -36,6 +36,9 @@ async function packaged(fail=false){
   assert.equal(fs.readFileSync(path.join(profile,'document-undo/history.json'),'utf8'),'[]');assert.equal(JSON.parse(fs.readFileSync(path.join(profile,'metadata-downloads.json'))).destination,path.join(home,'downloads'));
   const progress=fs.readFileSync(path.join(home,'progress.log'),'utf8').trim().split('\n').map(JSON.parse);assert.ok(progress.some(p=>p.stage==='installation'),'independent installer progress');assert.ok(progress.some(p=>p.stage===(fail?'recovery':'startup-check')));
   fs.writeFileSync(path.join(qa,fail?'rollback.json':'incremental.json'),JSON.stringify({ok:true,nativeExe:true,from:patch.from,to:patch.to,rollback:fail,dataPreserved:true,progressStages:[...new Set(progress.map(p=>p.stage))]},null,2));
+ }catch(error){
+  try{fs.writeFileSync(path.join(home,'processes.log'),execFileSync('powershell.exe',['-NoProfile','-Command',"Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'Workhub2|DocsHub' } | Select-Object Name,ProcessId,CommandLine | ConvertTo-Json"],{encoding:'utf8'}));}catch{}
+  throw error;
  }finally{fs.writeFileSync(path.join(home,'stop'),'stop');await wait(2500);}
 }
 async function legacy(){

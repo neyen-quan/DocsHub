@@ -30,6 +30,12 @@ async function extractFull(file,destination,expectedVersion){
  for(const [name,record]of Object.entries(inventory.files)){const b=files.get(name);if(!b||b.length!==record.size||engine.sha(b)!==record.sha256)throw Error('El paquete completo está dañado: '+name);}
  fs.mkdirSync(destination,{recursive:true});for(const [name,b]of files){const target=engine.inside(destination,name);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,b);}return inventory;
 }
+function verifyRepair(file,expectedVersion){
+ const files=engine.unzip(fs.readFileSync(file)),inventory=JSON.parse(files.get('assets/docshub-installation.json'));engine.validateInventory(inventory,expectedVersion);
+ const expected=Object.keys(inventory.files).filter(n=>!n.startsWith('runtime/')&&n!=='DocsHub.exe');if(files.size!==expected.length+1)throw Error('Invalid repair inventory');
+ for(const name of expected){const record=inventory.files[name],bytes=files.get(name);if(!bytes||bytes.length!==record.size||engine.sha(bytes)!==record.sha256)throw Error('Damaged repair file: '+name);}
+ return {files,inventory};
+}
 function readSettings(){return fs.existsSync(path.join(root,'.build/release-plan.json'))?JSON.parse(fs.readFileSync(path.join(root,'.build/release-plan.json'))):{};}
 async function prepare(){
  if(!repo||!/^[\w.-]+\/[\w.-]+$/.test(repo))throw Error('No se configuró el repositorio real de GitHub.');
@@ -57,6 +63,8 @@ async function build(){
   run(process.env.PYTHON||'python',[path.join(tools,'package-files.py'),'patch',out,path.join(root,'compat/legacy-v0.1.35-inventory.json'),file,'--legacy']);
   const old=require(path.join(root,'compat/legacy-update-engine.cjs'));old.validatePatch(fs.readFileSync(file),'0.1.35');feed.transition={from:'0.1.35',to:p.version,...asset(file)};
  }
+ // One-time rescue for installations whose old worker cannot install its own fix.
+ if(p.version==='0.1.39'&&settings.base){const repair=path.join(releaseDir,'DocsHub-'+p.version+'-repair.zip');run(process.env.PYTHON||'python',[path.join(tools,'package-files.py'),'repair',out,repair,path.join(settings.base.directory,'assets/docshub-installation.json')]);verifyRepair(repair,p.version);feed.repair=asset(repair);}
  for(const file of fs.readdirSync(releaseDir).filter(n=>n.endsWith('.zip')))fs.writeFileSync(path.join(releaseDir,file+'.sha256'),hash(path.join(releaseDir,file))+'  '+file+'\n');
  fs.writeFileSync(path.join(releaseDir,'latest.json'),JSON.stringify(feed,null,2)+'\n');
  console.log('Paquete completo, parche exacto y canal generados.');
@@ -65,9 +73,10 @@ async function build(){
 async function verifyRelease(tag,{publicChannel=false}={}){
  const release=getRelease(tag);if(!release)throw Error('No existe la release esperada.');const directory=path.join(root,'.build/verify-release',tag);const feedPath=downloadAsset(release,'latest.json',directory),feed=JSON.parse(fs.readFileSync(feedPath,'utf8'));
  if(feed.version!==tag.slice(1)||feed.product!=='DocsHub'||feed.appId!==engine.APP_ID)throw Error('El canal publicado tiene otra identidad.');
- const all=[feed.full,...feed.patches,...(feed.transition?[feed.transition]:[])];
+ const all=[feed.full,...feed.patches,...(feed.transition?[feed.transition]:[]),...(feed.repair?[feed.repair]:[])];
  for(const asset of all){const prefix='https://github.com/'+repo+'/releases/download/'+tag+'/';if(!asset.url.startsWith(prefix))throw Error('URL de asset fuera de la release.');const name=asset.url.slice(prefix.length);if(name.includes('/')||name.includes('..'))throw Error('Nombre de asset inválido.');const file=downloadAsset(release,name,directory);if(fs.statSync(file).size!==asset.size||hash(file)!==asset.sha256)throw Error('El asset publicado no coincide con el canal: '+name);const side=downloadAsset(release,name+'.sha256',directory);if(fs.readFileSync(side,'utf8').split(/\s/)[0]!==asset.sha256)throw Error('El archivo SHA-256 no coincide.');
   if(asset===feed.full)await extractFull(file,path.join(directory,'full'),feed.version);
+  else if(asset===feed.repair)verifyRepair(file,feed.version);
   else if(asset===feed.transition)require(path.join(root,'compat/legacy-update-engine.cjs')).validatePatch(fs.readFileSync(file),asset.from);
   else engine.validatePatch(fs.readFileSync(file),asset.from);
  }
@@ -88,4 +97,4 @@ async function publish(){
 }
 async function main(){const action=process.argv[2];if(action==='prepare')await prepare();else if(action==='build')await build();else if(action==='publish')await publish();else if(action==='verify')await verifyRelease(process.argv[3]||'v'+pkg().version);else throw Error('Acción desconocida.');}
 if(require.main===module)main().catch(e=>{console.error(e);process.exitCode=1;});
-module.exports={extractFull,prepare,build,publish,verifyRelease};
+module.exports={verifyRepair,extractFull,prepare,build,publish,verifyRelease};

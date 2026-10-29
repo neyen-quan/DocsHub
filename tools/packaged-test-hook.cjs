@@ -10,6 +10,15 @@ if(process.type==='browser'){
  process.on('uncaughtException',error=>{fs.writeFileSync(path.join(process.env.DOCSHUB_QA_HOME,'uncaught.json'),JSON.stringify({error:error.stack}));app.exit(1);});
  app.disableHardwareAcceleration();
  const qa=process.env.DOCSHUB_QA_HOME,root=process.env.DOCSHUB_QA_INSTALL;if(!qa||!root)throw Error('QA paths missing');fs.mkdirSync(qa,{recursive:true});
+ // Hold progress.json without FILE_SHARE_DELETE for the complete real installer
+ // transaction. An auxiliary progress file must never gate install or rollback.
+ const job=process.argv.find(a=>a.includes('.docshub-updates')&&fs.existsSync(path.join(a,'journal.json')));
+ if(job){
+  const ready=path.join(job,'lock-ready'),stop=path.join(job,'lock-stop');fs.writeFileSync(path.join(job,'progress.json'),'{}');
+  const locker=require('node:child_process').spawn('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',path.join(__dirname,'hold-file.ps1'),'-File',path.join(job,'progress.json'),'-Ready',ready,'-Stop',stop],{windowsHide:true,stdio:'ignore'});let lockerError;locker.on('error',e=>{lockerError=e;});
+  app.on('before-quit',()=>fs.writeFileSync(stop,'stop'));
+  const register=electron.ipcMain.handle.bind(electron.ipcMain);electron.ipcMain.handle=(name,handler)=>register(name,name!=='installer-ready'?handler:async(...args)=>{const until=Date.now()+15000;while(!fs.existsSync(ready)){if(lockerError)throw lockerError;if(Date.now()>until)throw Error('Could not acquire Windows progress lock');await new Promise(r=>setTimeout(r,100));}write('progress-lock.json',{locked:true,denyDelete:true});return handler(...args);});
+ }
  const original=app.getPath.bind(app);app.getPath=k=>k==='appData'?path.join(qa,'profile'):original(k);
  const pkg=()=>JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
  const captured=new Set();const capture=(wc,role)=>{if(captured.has(role))return;captured.add(role);setTimeout(async()=>{try{fs.writeFileSync(path.join(path.dirname(qa),path.basename(qa)+'-'+role+'.png'),(await wc.capturePage()).toPNG());}catch{}},350);};

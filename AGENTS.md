@@ -19,3 +19,6 @@
 - No cambiar el launcher ni desktop-start.cjs en parches normales: son el punto
   estable de recuperación. Si se necesita cambiarlos, diseñar una transición
   compatible y comprobar el escenario de corte durante la propia transición.
+- El progreso del instalador vive en memoria/IPC. Nunca hacer depender instalación
+  o recuperación de escribir/renombrar progress.json. Mantener las pruebas con
+  bloqueos reales de Windows y reintentos asíncronos de los diarios críticos.

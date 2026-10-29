@@ -91,6 +91,17 @@ module.exports={APP_ID,sha,crc32,version,newer,safeName,allowedFile,unzip,valida
 // Format 2 extends the same transaction engine with exact published inventories.
 const nextTurn=()=>new Promise(resolve=>setImmediate(resolve));
 async function retryFile(action,onWait=()=>{}){const until=Date.now()+8000;for(;;){try{return await action();}catch(e){if(!['EPERM','EBUSY','EACCES'].includes(e.code)||Date.now()>until)throw e;onWait();await new Promise(r=>setTimeout(r,200));}}}
+// Unique staging names and asynchronous retry keep Windows sharing locks from
+// corrupting a journal or blocking the installer UI while it waits.
+async function atomicJsonAsync(file,value,onWait=()=>{}){
+ await fs.promises.mkdir(path.dirname(file),{recursive:true});
+ const temp=file+'.'+crypto.randomUUID()+'.tmp';let handle;
+ try{
+  handle=await fs.promises.open(temp,'wx',0o600);
+  await handle.writeFile(JSON.stringify(value,null,2));await handle.sync();await handle.close();handle=null;
+  await retryFile(()=>fs.promises.rename(temp,file),onWait);
+ }finally{if(handle)await handle.close();await fs.promises.rm(temp,{force:true}).catch(()=>{});}
+}
 const IMMUTABLE=new Set(['electron/desktop-bootstrap.cjs','electron/desktop-start.cjs']);
 function ownedFile(name,reference=false){
  safeName(name);if(IMMUTABLE.has(name))return reference;
@@ -137,27 +148,27 @@ async function prepareAsync(root,buffer,currentVersion,onProgress=()=>{},signal)
    const target=name==='desktop-update.cjs'?'engine.cjs':name;await fs.promises.copyFile(path.join(__dirname,name),path.join(job,target));
   }
   await fs.promises.copyFile(path.join(__dirname,'../assets/docshub.png'),path.join(job,'docshub.png'));
-  atomicJson(path.join(job,'package.json'),{name:'docshub-installer',main:'installer-main.cjs',version:journal.to});
+  await atomicJsonAsync(path.join(job,'package.json'),{name:'docshub-installer',main:'installer-main.cjs',version:journal.to});
   // A changing runtime must not be used by the installer while it is replaced.
   if(journal.entries.some(e=>e.path.startsWith('runtime/'))){
    const runtimeEntries=[];async function visit(dir,relative=''){for(const entry of await fs.promises.readdir(dir,{withFileTypes:true})){const name=path.join(relative,entry.name);if(entry.isSymbolicLink())throw Error('El motor contiene un enlace.');if(entry.isDirectory())await visit(path.join(dir,entry.name),name);else runtimeEntries.push(name);}}await visit(path.join(root,'runtime'));
    let n=0;const recoveryReady=path.join(updates,'recovery-runtime','.ready');for(const name of (fs.existsSync(recoveryReady)?[]:runtimeEntries)){if(signal?.aborted)throw Error('Operación cancelada.');const target=path.join(updates,'recovery-runtime',name);fs.mkdirSync(path.dirname(target),{recursive:true});await fs.promises.copyFile(path.join(root,'runtime',name),target);onProgress({stage:'preparation',completed:++n,totalItems:runtimeEntries.length,message:'Preparando motor independiente del instalador…'});await nextTurn();}
    fs.writeFileSync(recoveryReady,'ready');journal.installerRuntime=path.join(updates,'recovery-runtime','Workhub2.exe');
   }else journal.installerRuntime=path.join(root,'runtime','Workhub2.exe');
-  if(signal?.aborted)throw Error('Operación cancelada.');atomicJson(path.join(job,'journal.json'),journal);atomicJson(active,{id});return {id,job,version:journal.to,count:journal.entries.length,runtime:journal.installerRuntime};
+  if(signal?.aborted)throw Error('Operación cancelada.');await atomicJsonAsync(path.join(job,'journal.json'),journal);await atomicJsonAsync(active,{id});return {id,job,version:journal.to,count:journal.entries.length,runtime:journal.installerRuntime};
  }catch(e){fs.rmSync(job,{recursive:true,force:true});throw e;}
 }
 async function applyAsync(job,journal,onProgress=()=>{}){
- journal.state='applying';atomicJson(path.join(job,'journal.json'),journal);let done=0;
+ journal.state='applying';await atomicJsonAsync(path.join(job,'journal.json'),journal);let done=0;
  for(const entry of journal.entries){
   if(!ownedFile(entry.path))throw Error('Ruta de instalación no permitida.');const target=inside(journal.root,entry.path),staged=path.join(job,'stage',entry.path);
   if(!entry.remove&&await hashFile(staged)!==entry.sha256)throw Error('El archivo preparado está dañado: '+entry.path);
-  entry.touched=true;atomicJson(path.join(job,'journal.json'),journal);
+  entry.touched=true;await atomicJsonAsync(path.join(job,'journal.json'),journal);
   if(entry.remove)await fs.promises.rm(target,{force:true});else{fs.mkdirSync(path.dirname(target),{recursive:true});const temp=target+'.docshub-new';await fs.promises.copyFile(staged,temp);try{await retryFile(()=>fs.promises.rename(temp,target),()=>onProgress({stage:'installation',message:'Esperando que Windows libere '+entry.path+'…'}));}finally{await fs.promises.rm(temp,{force:true});}}
   onProgress({stage:'installation',completed:++done,totalItems:journal.entries.length,message:'Instalando '+entry.path});await nextTurn();
  }
  await verifyInventory(journal.root,journal.targetInventory,p=>onProgress({...p,stage:'startup-check',message:p.message.replace('instalación','versión nueva')}));
- journal.state='awaiting-health';atomicJson(path.join(job,'journal.json'),journal);
+ journal.state='awaiting-health';await atomicJsonAsync(path.join(job,'journal.json'),journal);
 }
 async function rollbackAsync(job,journal,onProgress=()=>{}){
  let done=0;for(const entry of journal.entries.slice().reverse()){
@@ -165,6 +176,6 @@ async function rollbackAsync(job,journal,onProgress=()=>{}){
   if(entry.existed){fs.mkdirSync(path.dirname(target),{recursive:true});await retryFile(()=>fs.promises.copyFile(path.join(job,'backup',entry.path),target),()=>onProgress({stage:'recovery',message:'Esperando que Windows libere '+entry.path+'…'}));}else await fs.promises.rm(target,{force:true});
   onProgress({stage:'recovery',completed:++done,totalItems:journal.entries.filter(e=>e.touched).length,message:'Recuperando '+entry.path});await nextTurn();
  }
- journal.state='rolled-back';atomicJson(path.join(job,'journal.json'),journal);
+ journal.state='rolled-back';await atomicJsonAsync(path.join(job,'journal.json'),journal);
 }
-Object.assign(module.exports,{ownedFile,validateInventory,hashFile,verifyInventory,prepareAsync,applyAsync,rollbackAsync});
+Object.assign(module.exports,{atomicJsonAsync,ownedFile,validateInventory,hashFile,verifyInventory,prepareAsync,applyAsync,rollbackAsync});

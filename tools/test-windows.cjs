@@ -39,7 +39,7 @@ async function packaged(fail=false){
   let result;const deadline=Date.now()+90000;while(Date.now()<deadline){const file=path.join(install,'.docshub-updates/result.json');if(fs.existsSync(file)){result=JSON.parse(fs.readFileSync(file,'utf8'));break;}
    const jobs=fs.existsSync(path.join(install,'.docshub-updates'))?fs.readdirSync(path.join(install,'.docshub-updates')).filter(n=>/^[\da-f-]{36}$/.test(n)):[];
    for(const name of jobs){const file=path.join(install,'.docshub-updates',name,'journal.json');if(fs.existsSync(file)){const j=JSON.parse(fs.readFileSync(file,'utf8'));if(j.state===(fail?'rolled-back':'complete'))result={ok:!fail};}}if(result)break;await wait(100);}
-  assert.ok(result,'installer must reach a terminal state');assert.equal(result.ok,!fail);
+  assert.ok(JSON.parse(fs.readFileSync(path.join(home,'progress-lock.json'))).locked,'Windows progress file stayed locked');assert.ok(result,'installer must reach a terminal state');assert.equal(result.ok,!fail);
   if(!fail){const next=await waitFile(path.join(home,'launch-'+patch.to+'.json'));assert.equal(next.amount,1234);assert.equal(next.local,'retained');assert.equal(next.cookie,'retained');assert.equal(next.root,install);}
   else{assert.equal(JSON.parse(fs.readFileSync(path.join(install,'package.json'))).version,patch.from);const until=Date.now()+15000;while(fs.statSync(initialFile).mtimeMs<=initialTime&&Date.now()<until)await wait(100);assert.ok(fs.statSync(initialFile).mtimeMs>initialTime,'old app must reopen after rollback');}
   assert.equal(fs.readFileSync(path.join(profile,'document-undo/history.json'),'utf8'),'[]');assert.equal(JSON.parse(fs.readFileSync(path.join(profile,'metadata-downloads.json'))).destination,path.join(home,'downloads'));
@@ -64,6 +64,11 @@ async function exactDelta(){
  await engine.applyAsync(pending.job,journal);await engine.verifyInventory(install,journal.targetInventory);await engine.rollbackAsync(pending.job,journal);await engine.verifyInventory(install,journal.baseInventory||JSON.parse(fs.readFileSync(path.join(base,'assets/docshub-installation.json'))));
  fs.writeFileSync(path.join(qa,'exact-delta.json'),JSON.stringify({ok:true,publishedBase:true,actualReleasePatch:true,applyAndRollback:true}));
 }
-async function main(){if(process.platform!=='win32')throw Error('La aceptación de Windows se ejecuta en Windows.');await legacy();await exactDelta();await modal();await packaged();await packaged(true);console.log('PASS: EXE Windows, modal real, delta exacto, datos, progreso y rollback.');}
+async function repairArchive(){
+ const name=fs.readdirSync(path.join(root,'release')).find(n=>n.endsWith('-repair.zip'));if(!name)return;
+ const {verifyRepair}=require(path.join(tools,'release.cjs')),{files,inventory}=verifyRepair(path.join(root,'release',name),pkg.version),base=path.join(root,'.build/published-base'),target=path.join(qa,'repair-install');fs.cpSync(base,target,{recursive:true});const personal=path.join(target,'user-project');fs.mkdirSync(personal);fs.writeFileSync(path.join(personal,'keep.txt'),'retained');fs.writeFileSync(path.join(target,'electron/main.cjs'),'partial failed update');
+ for(const [name,bytes]of files){const file=engine.inside(target,name);fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,bytes);}await engine.verifyInventory(target,inventory);assert.equal(fs.readFileSync(path.join(personal,'keep.txt'),'utf8'),'retained');fs.writeFileSync(path.join(qa,'repair.json'),JSON.stringify({ok:true,partialInstallRepaired:true,localFilesPreserved:true,runtimeUnchanged:true}));
+}
+async function main(){if(process.platform!=='win32')throw Error('La aceptación de Windows se ejecuta en Windows.');await legacy();await repairArchive();await exactDelta();await modal();await packaged();await packaged(true);console.log('PASS: EXE Windows, modal real, delta exacto, datos, progreso y rollback.');}
 if(require.main===module)main().catch(e=>{fs.writeFileSync(path.join(qa,'failure.json'),JSON.stringify({ok:false,error:e.stack},null,2));console.error(e);process.exitCode=1;});
 module.exports={testPatch};

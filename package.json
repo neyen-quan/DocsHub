@@ -1,6 +1,6 @@
 {
   "name": "workhub2-desktop",
-  "version": "0.1.38",
+  "version": "0.1.39",
   "description": "DocsHub: documentos, IA, metadatos y cuentas del proyecto",
   "main": "electron/main.cjs",
   "scripts": {

@@ -46,3 +46,23 @@ La carpeta del programa necesita permisos de escritura. No se reemplaza el
 perfil ni los archivos de trabajo. Los respaldos del programa están en el
 mismo disco: no sustituyen un respaldo externo de datos ante una falla física.
 Los errores de recuperación conservan el diario para reintentar con DocsHub.exe.
+
+## Reparación excepcional de instalaciones anteriores a 0.1.39
+
+El worker anterior podía abortar al reemplazar `progress.json` si Windows retenía
+el archivo abierto. La versión 0.1.39 mantiene el avance en memoria/IPC; ningún
+registro auxiliar de progreso decide la instalación o su recuperación. Los
+JSON críticos se reemplazan con temporales únicos y reintentos asíncronos.
+
+`DocsHub-0.1.39-repair.zip` contiene únicamente los archivos del programa de esa
+versión, con inventario completo. No incluye perfil, proyectos, motor ni launcher:
+esos últimos deben coincidir exactamente con la base publicada y se verifican
+antes de generarlo. No se instala desde el selector de parches. Para reparar:
+cerrar instaladores y app, abrir DocsHub.exe una vez para recuperar cualquier
+transacción pendiente, cerrar la app, extraer el ZIP en la carpeta que contiene
+DocsHub.exe aceptando reemplazar y abrir de nuevo. No eliminar una transacción
+pendiente antes de recuperar. Después se vuelve al canal online habitual.
+
+CI mantiene progress.json abierto sin FILE_SHARE_DELETE durante una actualización
+real y durante una recuperación real. También bloquea un journal crítico y
+comprueba el reintento sin bloquear el bucle de la interfaz.

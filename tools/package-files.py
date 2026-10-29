@@ -38,6 +38,14 @@ def patch(root,base_inventory,output,legacy=False):
         if any(n in ('electron/desktop-start.cjs','electron/desktop-bootstrap.cjs')for n in changed):raise RuntimeError('El bootstrap estable no puede cambiar mediante un parche común.')
     write_zip(output,[('docshub-patch.json',json.dumps(manifest,ensure_ascii=False,indent=2).encode()),*entries])
     print(f'{output}: {len(entries)} archivos, {Path(output).stat().st_size} bytes')
+def repair(root,output,base_inventory):
+    root=Path(root);target=json.loads((root/'assets/docshub-installation.json').read_text());base=json.loads(Path(base_inventory).read_text())
+    omitted=[n for n in target['files'] if n.startswith('runtime/') or n=='DocsHub.exe']
+    if any(target['files'][n]!=base['files'].get(n) for n in omitted):raise RuntimeError('Repair requires an unchanged runtime and launcher')
+    names=[n for n in target['files'] if n not in omitted]+['assets/docshub-installation.json']
+    write_zip(output,[(n,(root/n).read_bytes()) for n in names])
+    print('Small repair archive: '+str(output))
 if __name__=='__main__':
     if sys.argv[1]=='package':package(*sys.argv[2:])
+    elif sys.argv[1]=='repair':repair(*sys.argv[2:])
     elif sys.argv[1]=='patch':patch(*sys.argv[2:5],legacy='--legacy' in sys.argv[5:])

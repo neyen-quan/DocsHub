@@ -26,7 +26,7 @@ function installDesktopUpdater({app,ipcMain,dialog,host,root,runtime=process.exe
   notify({stage:'confirmation',message:'ZIP verificado. Esperando tu confirmación para instalar…',canCancel:false});
   const choice=await dialog.showMessageBox(center||host(),{type:'question',title:'Confirmar actualización de DocsHub',message:'Actualizar DocsHub '+version()+' → '+validated.manifest.version,detail:'Se respaldará la versión actual y se conservarán tus datos y preferencias. Guardá los formularios pendientes antes de continuar.\n\nZIP SHA-256: '+hash,buttons:['Descargar e instalar','Cancelar'],defaultId:0,cancelId:1,noLink:true});
   if(choice.response!==0||signal.aborted){notify({stage:'canceled',message:'Instalación cancelada. El ZIP verificado sigue disponible para reintentar.'});return {ok:true,canceled:true};}
-  const pending=await engine.prepareAsync(root,buffer,version(),progress,signal);if(signal.aborted){fs.rmSync(path.join(root,'.docshub-updates/active.json'),{force:true});fs.rmSync(pending.job,{recursive:true,force:true});throw Error('Operación cancelada.');}const journalFile=path.join(pending.job,'journal.json'),journal=JSON.parse(fs.readFileSync(journalFile,'utf8'));journal.startedAt=state.startedAt;engine.atomicJson(journalFile,journal);let worker;
+  const pending=await engine.prepareAsync(root,buffer,version(),progress,signal);if(signal.aborted){fs.rmSync(path.join(root,'.docshub-updates/active.json'),{force:true});fs.rmSync(pending.job,{recursive:true,force:true});throw Error('Operación cancelada.');}const journalFile=path.join(pending.job,'journal.json'),journal=JSON.parse(fs.readFileSync(journalFile,'utf8'));journal.startedAt=state.startedAt;await engine.atomicJsonAsync(journalFile,journal);let worker;
   try{
    notify({stage:'handoff',message:'Abriendo el instalador independiente. DocsHub seguirá abierto hasta que esté listo.',canCancel:false});
    const env={...process.env};delete env.ELECTRON_RUN_AS_NODE;worker=spawn(pending.runtime,[pending.job,'--parent='+process.pid],{cwd:pending.job,env,windowsHide:true,detached:true,stdio:'ignore'});let failed;worker.once('error',e=>{failed=e;});worker.unref();
@@ -36,7 +36,7 @@ function installDesktopUpdater({app,ipcMain,dialog,host,root,runtime=process.exe
  }
  async function command(name,arg){
   if(name==='cancel'){abort?.abort();notify({canCancel:false,message:'Cancelación solicitada. Esperando el cierre de la operación…'});return {ok:true};}
-  if(name==='channel'){if(busy)return {ok:false,error:'Esperá a que termine la operación.'};const value=repositoryOf(String(arg||''),client.options).url;channel=value;engine.atomicJson(settings,{channel});info=null;downloaded=null;notify({stage:'idle',available:null,canInstall:false,hasFull:false,message:'Canal guardado. Buscá actualizaciones.'});return {ok:true};}
+  if(name==='channel'){if(busy)return {ok:false,error:'Esperá a que termine la operación.'};const value=repositoryOf(String(arg||''),client.options).url;channel=value;await engine.atomicJsonAsync(settings,{channel});info=null;downloaded=null;notify({stage:'idle',available:null,canInstall:false,hasFull:false,message:'Canal guardado. Buscá actualizaciones.'});return {ok:true};}
   return operation(async signal=>{
    if(name==='check')return check(signal);
    if(name==='install'){
@@ -68,7 +68,7 @@ function installDesktopUpdater({app,ipcMain,dialog,host,root,runtime=process.exe
   hostAuth(event);const id=process.env.DOCSHUB_UPDATE_JOB;
   if(id&&/^[\da-f-]{36}$/.test(id)){
    const job=path.join(root,'.docshub-updates',id),j=JSON.parse(fs.readFileSync(path.join(job,'journal.json'),'utf8'));
-   if(j.id===id&&j.to===version()&&j.state==='awaiting-health')engine.atomicJson(path.join(job,'healthy.json'),{id,version:version(),pid:process.pid});delete process.env.DOCSHUB_UPDATE_JOB;
+   if(j.id===id&&j.to===version()&&j.state==='awaiting-health')await engine.atomicJsonAsync(path.join(job,'healthy.json'),{id,version:version(),pid:process.pid});delete process.env.DOCSHUB_UPDATE_JOB;
   }
   const result=path.join(root,'.docshub-updates/result.json');if(fs.existsSync(result)){try{const r=JSON.parse(fs.readFileSync(result,'utf8'));if(!r.ok)await dialog.showMessageBox(host(),{type:'warning',title:'Actualización de DocsHub',message:r.message,buttons:['Aceptar']});fs.rmSync(result,{force:true});}catch{}}
   return {ok:true,version:version()};

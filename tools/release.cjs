@@ -5,16 +5,19 @@ const pkg=()=>JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'))
 function gh(...args){return execFileSync('gh',args,{cwd:root,encoding:'utf8',maxBuffer:10*1024*1024}).trim();}
 function run(command,args){execFileSync(command,args,{cwd:root,stdio:'inherit'});}
 function api(endpoint){return JSON.parse(gh('api',endpoint));}
+const knownReleases=new Map();
 function getRelease(tag){
+ if(knownReleases.has(tag))return api('repos/'+repo+'/releases/'+knownReleases.get(tag));
  // Draft tags are not resolvable through releases/tags until publication.
  // The authenticated collection includes drafts and prevents duplicate creation.
- const releases=api('repos/'+repo+'/releases?per_page=100');const found=releases.find(r=>r.tag_name===tag);if(found)return found;
+ const releases=api('repos/'+repo+'/releases?per_page=100');const found=releases.find(r=>r.tag_name===tag);if(found){knownReleases.set(tag,found.id);return found;}
  try{return api('repos/'+repo+'/releases/tags/'+tag);}catch{return null;}
 }
 function filesOfRelease(release){return new Map(release.assets.map(a=>[a.name,a]));}
 function downloadAsset(release,name,directory){
  fs.mkdirSync(directory,{recursive:true});const destination=path.join(directory,name);if(fs.existsSync(destination))fs.unlinkSync(destination);
- gh('release','download',release.tag_name,'--repo',repo,'--pattern',name,'--dir',directory);
+ const published=release.assets.find(a=>a.name===name);if(!published)throw Error('Falta el asset '+name);
+ const fd=fs.openSync(destination,'w');try{execFileSync('gh',['api','repos/'+repo+'/releases/assets/'+published.id,'-H','Accept: application/octet-stream'],{cwd:root,stdio:['ignore',fd,'pipe']});}finally{fs.closeSync(fd);}
  const asset=release.assets.find(a=>a.name===name);if(!asset||fs.statSync(destination).size!==asset.size)throw Error('El tamaño del asset publicado no coincide: '+name);
  if(asset.digest?.startsWith('sha256:')&&hash(destination)!==asset.digest.slice(7))throw Error('SHA-256 de GitHub incorrecto: '+name);
  return destination;
@@ -74,10 +77,11 @@ async function verifyRelease(tag,{publicChannel=false}={}){
 async function publish(){
  const tag='v'+pkg().version,source=process.env.DOCSHUB_SOURCE_SHA||process.env.GITHUB_SHA,dir=path.join(root,'release');let release=getRelease(tag);
  if(release&&!release.draft){await verifyRelease(tag);console.log('Release publicada inmutable: no se sobrescribe ningún archivo.');return;}
- if(!release){gh('release','create',tag,'--repo',repo,'--target',source,'--draft','--title','DocsHub '+pkg().version,'--notes','Instalación nueva o reparación: Windows-x64.zip. Actualización: Actualizar programa → Buscar actualizaciones → Descargar e instalar. ZIP local disponible.');release=getRelease(tag);}
+ if(!release){release=JSON.parse(gh('api','--method','POST','repos/'+repo+'/releases','-f','tag_name='+tag,'-f','target_commitish='+source,'-f','name=DocsHub '+pkg().version,'-f','body=Instalación nueva o reparación: Windows-x64.zip. Actualización: Actualizar programa → Buscar actualizaciones → Descargar e instalar. ZIP local disponible.','-F','draft=true'));knownReleases.set(tag,release.id);}
+
  const entries=fs.readdirSync(dir).filter(n=>n.endsWith('.zip')||n.endsWith('.zip.sha256'));entries.push('latest.json');
  const existing=filesOfRelease(release);
- for(const name of entries){const local=path.join(dir,name);if(existing.has(name)){const previous=downloadAsset(release,name,path.join(root,'.build/existing-assets'));if(hash(previous)!==hash(local))throw Error('El asset '+name+' ya existe con otros bytes; se conserva, no se sobrescribe.');}else gh('release','upload',tag,local,'--repo',repo);}
+ for(const name of entries){const local=path.join(dir,name);if(existing.has(name)){const previous=downloadAsset(release,name,path.join(root,'.build/existing-assets'));if(hash(previous)!==hash(local))throw Error('El asset '+name+' ya existe con otros bytes; se conserva, no se sobrescribe.');}else gh('api','--method','POST','https://uploads.github.com/repos/'+repo+'/releases/'+release.id+'/assets?name='+encodeURIComponent(name),'--input',local,'-H','Content-Type: application/octet-stream');}
  await verifyRelease(tag);let latest;try{latest=api('repos/'+repo+'/releases/latest');}catch{}
  const isLatest=!latest||engine.newer(pkg().version,latest.tag_name.slice(1))||latest.tag_name===tag;
  gh('release','edit',tag,'--repo',repo,'--draft=false',isLatest?'--latest=true':'--latest=false');await verifyRelease(tag,{publicChannel:isLatest});

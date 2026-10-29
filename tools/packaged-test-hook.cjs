@@ -15,7 +15,7 @@ if(process.type==='browser'){
  const captured=new Set();const capture=(wc,role)=>{if(captured.has(role))return;captured.add(role);setTimeout(async()=>{try{fs.writeFileSync(path.join(path.dirname(qa),path.basename(qa)+'-'+role+'.png'),(await wc.capturePage()).toPNG());}catch{}},350);};
  const write=(file,obj)=>fs.writeFileSync(path.join(qa,file),JSON.stringify(obj,null,2));
  const realDialog=dialog.showMessageBox.bind(dialog);
- dialog.showMessageBox=async(win,options)=>options.title==='Confirmar actualización de DocsHub'?{response:0}:realDialog(win,options);
+ dialog.showMessageBox=async(win,options)=>['Confirmar actualización de DocsHub','Actualización de DocsHub'].includes(options.title)?{response:0}:realDialog(win,options);
  dialog.showOpenDialog=async()=>({canceled:false,filePaths:[process.env.DOCSHUB_QA_PATCH]});
  app.on('web-contents-created',(_event,wc)=>{
   const load=wc.loadURL.bind(wc);wc.loadURL=(url,...args)=>/^https?:/i.test(url)?Promise.resolve():load(url,...args);

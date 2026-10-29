@@ -21,7 +21,14 @@ async function modal(){
  try{const result=await waitFile(report,40000);assert.equal(result.ok,true,JSON.stringify(result));}finally{try{child.kill();}catch{}}
 }
 async function packaged(fail=false){
- const home=path.join(qa,fail?'rollback':'install'),install=path.join(home,'DocsHub á space');fs.mkdirSync(home,{recursive:true});fs.cpSync(built,install,{recursive:true});const patch=testPatch(install,home,{fail});
+ const home=path.join(qa,fail?'rollback':'install'),install=path.join(home,'DocsHub á space');fs.mkdirSync(home,{recursive:true});fs.cpSync(built,install,{recursive:true});
+ // Packaged Electron intentionally ignores NODE_OPTIONS --require. Instrument
+ // only this disposable install, then describe those exact bytes in its fixture
+ // inventory. Never modify the deliverable in .build/DocsHub or release/.
+ const main=path.join(install,'electron/main.cjs'),hook=path.join(tools,'packaged-test-hook.cjs').replaceAll('\\','/');
+ fs.writeFileSync(main,'require('+JSON.stringify(hook)+');\n'+fs.readFileSync(main,'utf8'));
+ const invFile=path.join(install,'assets/docshub-installation.json'),inv=JSON.parse(fs.readFileSync(invFile));const bytes=fs.readFileSync(main);inv.files['electron/main.cjs']={size:bytes.length,sha256:engine.sha(bytes)};fs.writeFileSync(invFile,JSON.stringify(inv,null,2)+'\n');
+ const patch=testPatch(install,home,{fail});
  const profile=path.join(home,'profile','Neyen.Workhub2');fs.mkdirSync(profile,{recursive:true});fs.writeFileSync(path.join(profile,'metadata-downloads.json'),JSON.stringify({destination:path.join(home,'downloads')}));fs.mkdirSync(path.join(profile,'document-undo'),{recursive:true});fs.writeFileSync(path.join(profile,'document-undo/history.json'),'[]');
  const env={...process.env,NODE_OPTIONS:require('./lib/node-preload.cjs').preloadOption(path.join(tools,'packaged-test-hook.cjs')),DOCSHUB_QA_HOME:home,DOCSHUB_QA_INSTALL:install,DOCSHUB_QA_PATCH:patch.file,DOCSHUB_QA_FROM:patch.from};delete env.ELECTRON_RUN_AS_NODE;
  const probeEnv={...env,ELECTRON_RUN_AS_NODE:'1'};try{fs.writeFileSync(path.join(home,'runtime-probe.log'),execFileSync(path.join(install,'runtime/Workhub2.exe'),['-e',"console.log(JSON.stringify({type:process.type,argv:process.argv,electron:process.versions.electron,nodeOptions:process.env.NODE_OPTIONS}));"],{env:probeEnv,encoding:'utf8',timeout:15000}));}catch(e){fs.writeFileSync(path.join(home,'runtime-probe.log'),String(e)+'\n'+e.stdout+'\n'+e.stderr);}
@@ -49,6 +56,13 @@ async function legacy(){
  const pending=old.prepare(dir,fs.readFileSync(file),'0.1.35'),j=JSON.parse(fs.readFileSync(path.join(pending.job,'journal.json')));old.apply(pending.job,j);assert.equal(JSON.parse(fs.readFileSync(path.join(dir,'package.json'))).version,pkg.version);old.rollback(pending.job,j);assert.equal(JSON.parse(fs.readFileSync(path.join(dir,'package.json'))).version,'0.1.35');
  fs.writeFileSync(path.join(qa,'legacy.json'),JSON.stringify({ok:true,legacyValidator:true,applyAndRollback:true}));
 }
-async function main(){if(process.platform!=='win32')throw Error('La aceptación de Windows se ejecuta en Windows.');await legacy();await modal();await packaged();await packaged(true);console.log('PASS: EXE Windows, modal real, delta exacto, datos, progreso y rollback.');}
+async function exactDelta(){
+ const candidates=fs.readdirSync(path.join(root,'release')).filter(n=>n.endsWith('-patch.zip'));if(!candidates.length)return;
+ const base=path.join(root,'.build/published-base'),install=path.join(qa,'exact-delta');fs.cpSync(base,install,{recursive:true});const from=JSON.parse(fs.readFileSync(path.join(install,'package.json'))).version;
+ const pending=await engine.prepareAsync(install,fs.readFileSync(path.join(root,'release',candidates[0])),from);const journal=JSON.parse(fs.readFileSync(path.join(pending.job,'journal.json')));
+ await engine.applyAsync(pending.job,journal);await engine.verifyInventory(install,journal.targetInventory);await engine.rollbackAsync(pending.job,journal);await engine.verifyInventory(install,journal.baseInventory||JSON.parse(fs.readFileSync(path.join(base,'assets/docshub-installation.json'))));
+ fs.writeFileSync(path.join(qa,'exact-delta.json'),JSON.stringify({ok:true,publishedBase:true,actualReleasePatch:true,applyAndRollback:true}));
+}
+async function main(){if(process.platform!=='win32')throw Error('La aceptación de Windows se ejecuta en Windows.');await legacy();await exactDelta();await modal();await packaged();await packaged(true);console.log('PASS: EXE Windows, modal real, delta exacto, datos, progreso y rollback.');}
 if(require.main===module)main().catch(e=>{fs.writeFileSync(path.join(qa,'failure.json'),JSON.stringify({ok:false,error:e.stack},null,2));console.error(e);process.exitCode=1;});
 module.exports={testPatch};

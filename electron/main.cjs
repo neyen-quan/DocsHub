@@ -959,10 +959,7 @@ function showWindow() {
     const gptIds = [...remoteViews].filter(([id, view]) => currentViews.includes(view) && ['gpt-personal','gpt-alterframe'].includes(id.split('::').at(-1))).map(([id]) => id);
     return gptIds.includes(lastGptViewId) ? lastGptViewId : gptIds.length === 1 ? gptIds[0] : null;
   });
-  if (process.platform === 'win32') win.setAppDetails({
-    appId: 'agency.neyen.workhub2', appIconPath: path.join(__dirname, '../assets/docshub.ico'), appIconIndex: 0,
-    relaunchCommand: '"' + path.join(__dirname, '../DocsHub.exe') + '"', relaunchDisplayName: 'DocsHub'
-  });
+  require('./windows-identity.cjs').applyWindowsIdentity(win,path.resolve(__dirname,'..'));
   win.maximize();
   win.setMenu(null);
   win.setMenuBarVisibility(false);

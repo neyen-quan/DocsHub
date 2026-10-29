@@ -35,7 +35,10 @@ if(process.type==='browser'){
      })()`);
      const cookies=session.fromPartition('persist:workhub2-gpt-personal').cookies;let found=await cookies.get({name:'docshub-ci'});if(seed&&!found.length){await cookies.set({url:'https://example.com',name:'docshub-ci',value:'retained',expirationDate:Date.now()/1000+86400});found=await cookies.get({name:'docshub-ci'});}
      await cookies.flushStore();if(seed)fs.writeFileSync(path.join(qa,'seeded'),'yes');
-     write('launch-'+version+'.json',{ok:true,version,local:result.local,expenseCount:result.data.data.expenses.length,amount:result.data.data.expenses[0]?.amountCents,cookie:found[0]?.value,root});
+     const handle=win.getNativeWindowHandle().readBigUInt64LE().toString();
+     const windowIcon=JSON.parse(require('node:child_process').execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',path.join(__dirname,'window-icon.ps1'),'-WindowHandle',handle],{encoding:'utf8',timeout:15000}));
+     const shellIcon=await app.getFileIcon(path.join(root,'assets',fs.existsSync(path.join(root,'assets/docshub-taskbar.ico'))?'docshub-taskbar.ico':'docshub.ico'),{size:'normal'});const pixels=shellIcon.toBitmap();let shellYellow=0;for(let i=0;i<pixels.length;i+=4){if(pixels[i+3]>100&&pixels[i+2]>140&&pixels[i+1]>90&&pixels[i]<180&&pixels[i+2]>=pixels[i+1])shellYellow++;}
+     write('launch-'+version+'.json',{ok:true,version,windowIcon,shellYellow,local:result.local,expenseCount:result.data.data.expenses.length,amount:result.data.data.expenses[0]?.amountCents,cookie:found[0]?.value,root});
      if(process.env.DOCSHUB_QA_FROM===version&&process.env.DOCSHUB_QA_PATCH&&!fs.existsSync(path.join(qa,'requested'))){fs.writeFileSync(path.join(qa,'requested'),'yes');await win.webContents.executeJavaScript('window.workhub2.desktopUpdate()');}
     }else if(url.endsWith('/electron/update-center.html')&&process.env.DOCSHUB_QA_PATCH){
      capture(win.webContents,'center');await new Promise(r=>setTimeout(r,300));await win.webContents.executeJavaScript("window.docsHubUpdater.command('local')");

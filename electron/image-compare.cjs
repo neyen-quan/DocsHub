@@ -87,7 +87,7 @@ function createImageCompare({ BrowserWindow, screen, allowedPath, mainWindow }) 
     if (existing && !existing.isDestroyed()) { arrange(); existing.show(); existing.focus(); return { ok: true }; }
     if (entries.size >= 16) throw new Error('Cerrá alguna imagen antes de abrir otra: el comparador admite 16 ventanas.');
     const win = new BrowserWindow({ width: 640, height: 700, minWidth: 120, minHeight: 100, show: false, backgroundColor: '#10151d', title: `${path.basename(canonical)} · Comparar · DocsHub`, autoHideMenuBar: true, icon: path.join(__dirname, '../assets/docshub.png'), webPreferences: { contextIsolation: true, sandbox: true, nodeIntegration: false, preload: path.join(__dirname, 'image-viewer-preload.cjs') } });
-    if (process.platform === 'win32') win.setAppDetails({appId:'agency.neyen.workhub2',appIconPath:path.join(__dirname,'../assets/docshub.ico'),appIconIndex:0,relaunchCommand:'"'+path.join(__dirname,'../DocsHub.exe')+'"',relaunchDisplayName:'DocsHub'});
+    require('./windows-identity.cjs').applyWindowsIdentity(win,path.resolve(__dirname,'..'));
     entries.set(canonical, win);
     const viewerContents = win.webContents;
     win.setMenu(null);

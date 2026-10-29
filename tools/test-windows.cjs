@@ -25,9 +25,10 @@ async function packaged(fail=false){
  // Packaged Electron intentionally ignores NODE_OPTIONS --require. Instrument
  // only this disposable install, then describe those exact bytes in its fixture
  // inventory. Never modify the deliverable in .build/DocsHub or release/.
- const main=path.join(install,'electron/main.cjs'),hook=path.join(tools,'packaged-test-hook.cjs').replaceAll('\\','/');
- fs.writeFileSync(main,'require('+JSON.stringify(hook)+');\n'+fs.readFileSync(main,'utf8'));
- const invFile=path.join(install,'assets/docshub-installation.json'),inv=JSON.parse(fs.readFileSync(invFile));const bytes=fs.readFileSync(main);inv.files['electron/main.cjs']={size:bytes.length,sha256:engine.sha(bytes)};fs.writeFileSync(invFile,JSON.stringify(inv,null,2)+'\n');
+ const hook=path.join(tools,'packaged-test-hook.cjs').replaceAll('\\','/');
+ const invFile=path.join(install,'assets/docshub-installation.json'),inv=JSON.parse(fs.readFileSync(invFile));
+ for(const name of ['electron/main.cjs','electron/installer-main.cjs']){const file=path.join(install,name);fs.writeFileSync(file,'require('+JSON.stringify(hook)+');\n'+fs.readFileSync(file,'utf8'));const bytes=fs.readFileSync(file);inv.files[name]={size:bytes.length,sha256:engine.sha(bytes)};}
+ fs.writeFileSync(invFile,JSON.stringify(inv,null,2)+'\n');
  const patch=testPatch(install,home,{fail});
  const profile=path.join(home,'profile','Neyen.Workhub2');fs.mkdirSync(profile,{recursive:true});fs.writeFileSync(path.join(profile,'metadata-downloads.json'),JSON.stringify({destination:path.join(home,'downloads')}));fs.mkdirSync(path.join(profile,'document-undo'),{recursive:true});fs.writeFileSync(path.join(profile,'document-undo/history.json'),'[]');
  const env={...process.env,NODE_OPTIONS:require('./lib/node-preload.cjs').preloadOption(path.join(tools,'packaged-test-hook.cjs')),DOCSHUB_QA_HOME:home,DOCSHUB_QA_INSTALL:install,DOCSHUB_QA_PATCH:patch.file,DOCSHUB_QA_FROM:patch.from};delete env.ELECTRON_RUN_AS_NODE;

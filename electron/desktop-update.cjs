@@ -1,5 +1,6 @@
 // DocsHub patch format 1. No shell, PowerShell, external unzip or npm dependency.
-const fs = require('node:fs');
+// Hash and replace physical ASAR bytes, bypassing Electron's virtual archive fs.
+const fs = (()=>{try{return require('original-fs');}catch{return require('node:fs');}})();
 const path = require('node:path');
 const crypto = require('node:crypto');
 const zlib = require('node:zlib');

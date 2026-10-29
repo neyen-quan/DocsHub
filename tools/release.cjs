@@ -5,7 +5,12 @@ const pkg=()=>JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'))
 function gh(...args){return execFileSync('gh',args,{cwd:root,encoding:'utf8',maxBuffer:10*1024*1024}).trim();}
 function run(command,args){execFileSync(command,args,{cwd:root,stdio:'inherit'});}
 function api(endpoint){return JSON.parse(gh('api',endpoint));}
-function getRelease(tag){try{return api('repos/'+repo+'/releases/tags/'+tag);}catch{return null;}}
+function getRelease(tag){
+ // Draft tags are not resolvable through releases/tags until publication.
+ // The authenticated collection includes drafts and prevents duplicate creation.
+ const releases=api('repos/'+repo+'/releases?per_page=100');const found=releases.find(r=>r.tag_name===tag);if(found)return found;
+ try{return api('repos/'+repo+'/releases/tags/'+tag);}catch{return null;}
+}
 function filesOfRelease(release){return new Map(release.assets.map(a=>[a.name,a]));}
 function downloadAsset(release,name,directory){
  fs.mkdirSync(directory,{recursive:true});const destination=path.join(directory,name);if(fs.existsSync(destination))fs.unlinkSync(destination);

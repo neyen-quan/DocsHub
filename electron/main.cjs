@@ -1259,6 +1259,7 @@ async function materializeZipItem(item, stagingRoot) {
 const documentUndo = require('./document-undo.cjs').createDocumentUndo(path.join(profileRoot, 'document-undo'));
 let documentOperations = Promise.resolve();
 function queueDocumentOperation(action) { const result = documentOperations.then(action); documentOperations = result.catch(() => {}); return result; }
+require('./document-zip.cjs').installDocumentZip({ipcMain,host:()=>win,allowedPath:isUnderAllowedFolder,queue:queueDocumentOperation,runArchive:input=>runPowerShellScript('create-zip.ps1',null,input)});
 const editVlc = require('./vlc.cjs').createVlc({allowedPath:isUnderAllowedFolder,runWindows:(action,input)=>runPowerShellScript('vlc-window.ps1',action,input)});
 ipcMain.handle('document-video-vlc', async (event,file) => {
   if (event.sender !== win?.webContents) return {ok:false,error:'Solicitud inválida.'};

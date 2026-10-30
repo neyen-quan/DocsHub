@@ -42,6 +42,7 @@ contextBridge.exposeInMainWorld('workhub2', {
   documentEditFinish: id => ipcRenderer.invoke('document-edit-finish', {id}),
   onDocumentEditStatus: callback => { const listener = (_event, result) => callback(result); ipcRenderer.on('document-edit-status', listener); return () => ipcRenderer.removeListener('document-edit-status', listener); },
   undoDocuments: () => ipcRenderer.invoke('undo-documents'),
+  createDocumentZip: (folder, files) => ipcRenderer.invoke('create-document-zip', { folder, files }),
   extractDocumentZip: (file, elsewhere = false) => ipcRenderer.invoke('extract-document-zip', { file, elsewhere }),
   createFolder: (parent, name) => ipcRenderer.invoke('create-folder', { parent, name }),
   moveFile: (source, destinationFolder) => ipcRenderer.invoke('move-file', { source, destinationFolder }),

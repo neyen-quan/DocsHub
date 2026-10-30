@@ -585,6 +585,15 @@ function App() {
       setDocumentStatus(`Operación deshecha: ${result.reverted} elemento(s).`);
     }, 'Deshaciendo…');
   }
+  async function createDocumentZip(menu) {
+    setDocumentMenu(null);
+    await runDocumentAction(async () => {
+      const result = await window.workhub2.createDocumentZip(menu.folder, menu.items.map(item => item.path));
+      if (!result?.ok) throw Error(result?.error || 'No pude crear el ZIP.');
+      await refreshDocumentsAfterTransfer();
+      setDocumentStatus(`ZIP creado: ${documentFolderName(result.file)}. Los originales se conservaron.`);
+    }, `Creando ZIP de ${menu.items.length} elemento(s)…`);
+  }
   async function extractDocumentZip(file, elsewhere) {
     setDocumentMenu(null);
     await runDocumentAction(async () => {
@@ -1214,7 +1223,7 @@ function App() {
       event.preventDefault(); event.stopPropagation();
       const items = item ? (selected.includes(item.path) ? selectedItems() : [item]) : selectedItems();
       if (item && !selected.includes(item.path)) setSelection([item.path], item.path);
-      setDocumentMenu({ x: Math.min(event.clientX, window.innerWidth - 230), y: Math.max(8, Math.min(event.clientY, window.innerHeight - 470)), items, folder: activeFolder, paneIndex });
+      setDocumentMenu({ x: Math.min(event.clientX, window.innerWidth - 230), y: Math.max(8, Math.min(event.clientY, window.innerHeight - 515)), items, folder: activeFolder, paneIndex });
     };
     return <div className="documents-page" tabIndex={0} onKeyDownCapture={handleDocumentKeys} onMouseDown={event => { if (!event.target.closest('input,button,[role="button"]')) event.currentTarget.focus({ preventScroll: true }); }} onContextMenu={showDocumentMenu}>
       <aside className="file-sidebar"><div className="side-overline">ESPACIO DE TRABAJO</div>{(doc?.folder || folder) ? <div className="document-folder-tree" role="tree" aria-label={`Carpetas de ${documentFolderName(doc?.folder || folder)}`}><DocumentFolderNode key={doc?.folder || folder} node={{path: doc?.folder || folder, name: documentFolderName(doc?.folder || folder)}} root ancestors={[]} active={activeFolder} expanded={doc?.expanded || [folder]} revision={documentTreeRevision} onToggle={path => updateSplitDoc(paneIndex, { expanded: (doc?.expanded || []).includes(path) ? doc.expanded.filter(p => p !== path) : [...(doc?.expanded || []), path] })} onNavigate={(path, chain) => { setActiveStack(chain.slice(1)); setActiveFilter(''); }}/></div> : <button className="side-selected" onClick={folderPicker}><FolderOpen size={17}/>Elegí una carpeta</button>}<div className="side-note"><HardDrive size={16}/><span>Carpeta principal de esta subpestaña</span></div></aside>
@@ -1293,6 +1302,7 @@ function App() {
       <button role="menuitem" disabled={documentMenu.folder.startsWith('zip://')} onClick={()=>{setFolderDialog({mode:'create-document',name:'Nueva carpeta',parent:documentMenu.folder,paneIndex:documentMenu.paneIndex});setDocumentMenu(null);}}>Nueva carpeta <span>Ctrl+Mayús+N</span></button>
       <div className="document-menu-separator"/>
       <button role="menuitem" disabled={documentMenu.items.length !== 1 || documentMenu.items[0]?.path.startsWith('zip://')} onClick={() => beginDocumentRename(documentMenu.items[0])}>Cambiar nombre <span>F2</span></button>
+      <button role="menuitem" disabled={!documentMenu.items.length || documentMenu.folder.startsWith('zip://') || documentMenu.items.some(item => item.path.startsWith('zip://'))} onClick={() => createDocumentZip(documentMenu)}>Crear ZIP</button>
       <button role="menuitem" onClick={() => { setDocumentMenu(null); void undoDocumentOperation(); }}>Deshacer <span>Ctrl+Z</span></button>
       {documentMenu.items.length === 1 && documentMenu.items[0].archive && !documentMenu.items[0].path.startsWith('zip://') && <><button role="menuitem" onClick={() => extractDocumentZip(documentMenu.items[0].path, false)}>Extraer aquí</button><button role="menuitem" onClick={() => extractDocumentZip(documentMenu.items[0].path, true)}>Extraer en otra carpeta…</button></>}
       {documentMenu.items.length === 1 && !documentMenu.items[0].directory && !documentMenu.items[0].path.startsWith('zip://') && /\.(mp4|mov|m4v|webm|avi|mkv|wmv|mpg|mpeg|mts|m2ts|3gp|ogv)$/i.test(documentMenu.items[0].name) && <div className="document-edit-menu"><span>Editar / abrir video con</span><button role="menuitem" onClick={() => editVideoVlc(documentMenu.items[0].path)}>VLC media player</button><button role="menuitem" onClick={() => editVideoClipchamp(documentMenu.items[0].path)}>Clipchamp</button></div>}

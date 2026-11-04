@@ -1139,8 +1139,13 @@ function App() {
       } else setSelection([item.path], item.path);
       event.currentTarget.focus();
     };
-    const openDocument = async item => {
-      if (item.directory) { changeFolder(item.path); return; }
+    const openDocument = async (item, origin = document.activeElement) => {
+      if (item.directory) {
+        // The clicked row disappears after navigation. Keep focus on its stable
+        // pane before React removes it so the next Backspace is received there.
+        origin?.closest?.('.documents-page')?.focus({preventScroll:true});
+        changeFolder(item.path); return;
+      }
       if (imageFile(item)) {
         const result = await window.workhub2.openImageComparison(item.path);
         if (!result?.ok) setDocumentStatus(result?.error || 'No pude abrir la imagen.');
@@ -1185,7 +1190,7 @@ function App() {
         if (event.repeat) return;
         const items = selectedItems();
         const toOpen = items.length === 1 ? items : items.filter(imageFile);
-        void (async () => { for (const item of toOpen) await openDocument(item); })();
+        void (async () => { for (const item of toOpen) await openDocument(item, event.currentTarget); })();
       }
     };
     const onDropOver = event => {
@@ -1246,7 +1251,7 @@ function App() {
           <div className="document-drag-tools" role="group" aria-label="Destino del arrastre"><span>Arrastre</span><button className={`text-button ${documentDragMode === 'move' ? 'chosen' : ''}`} aria-pressed={documentDragMode === 'move'} onClick={() => setDocumentDragMode('move')}><FolderOpen size={14}/>Mover entre paneles</button><button className={`text-button ${documentDragMode === 'external' ? 'chosen' : ''}`} aria-pressed={documentDragMode === 'external'} onClick={() => setDocumentDragMode('external')}><ExternalLink size={14}/>Adjuntar afuera</button><button className="text-button" title="Cerrar todas las ventanas de fotos del comparador" onClick={() => window.workhub2.closeImageComparisons()}>× Cerrar fotos</button></div>
           <div className={`file-table ${documentViewMode === 'previews' ? 'document-preview-grid' : ''} ${isUpdatePath(activeFolder) ? 'is-update-folder' : ''}`} style={{'--doc-card-size': `${documentThumbnailSize}px`, '--doc-preview-height': `${Math.round(documentThumbnailSize * .74)}px`}} tabIndex={0} onClick={event=>{if(event.target===event.currentTarget)event.currentTarget.focus();}}>
             <div className="file-table-head"><span>Nombre</span><span>Tipo</span><span>{isUpdatePath(activeFolder)?'Acción':'Tamaño'}</span></div>
-            {visibleEntries.map(item=>{const Icon=iconFor(item);const patchFile=isUpdatePath(activeFolder)&&!item.directory&&item.name.toLowerCase().endsWith('.zip');return <div className={`file-row ${selected.includes(item.path)?'selected':''}`} data-document-path={item.path} role="button" aria-selected={selected.includes(item.path)} tabIndex={0} draggable onDragStart={event=>documentDragStart(event,item)} onContextMenu={event=>showDocumentMenu(event,item)} onDragOver={onDropOver} onDrop={event=>{event.stopPropagation();dropDocumentFiles(event,item.directory && !item.archive ? item.path : activeFolder);}} key={item.path} onDoubleClick={()=>openDocument(item)} onClick={event=>handleSelect(event,item)} onKeyDown={event=>{if(event.key===' '){event.preventDefault();handleSelect({...event,ctrlKey:true,currentTarget:event.currentTarget},item);}}}><span className="file-name"><DocumentThumbnail item={item} externalMode={documentDragMode === 'external'} onDragStart={event => { event.stopPropagation(); documentDragStart(event,item); }} onExternalDrag={event => externalDragStart(event,item)}/><span className="document-file-label" title={item.name}>{item.name}</span></span><span>{item.directory?'Carpeta':item.name.split('.').pop().toUpperCase()}</span><span>{patchFile?<button className="patch-apply-button" disabled={patchBusy} onClick={event=>{event.stopPropagation();applyPatch(item.path);}}>Aplicar y reiniciar</button>:item.directory?'—':formatSize(item.size)}</span></div>;})}
+            {visibleEntries.map(item=>{const Icon=iconFor(item);const patchFile=isUpdatePath(activeFolder)&&!item.directory&&item.name.toLowerCase().endsWith('.zip');return <div className={`file-row ${selected.includes(item.path)?'selected':''}`} data-document-path={item.path} role="button" aria-selected={selected.includes(item.path)} tabIndex={0} draggable onDragStart={event=>documentDragStart(event,item)} onContextMenu={event=>showDocumentMenu(event,item)} onDragOver={onDropOver} onDrop={event=>{event.stopPropagation();dropDocumentFiles(event,item.directory && !item.archive ? item.path : activeFolder);}} key={item.path} onDoubleClick={event=>openDocument(item,event.currentTarget)} onClick={event=>handleSelect(event,item)} onKeyDown={event=>{if(event.key===' '){event.preventDefault();handleSelect({...event,ctrlKey:true,currentTarget:event.currentTarget},item);}}}><span className="file-name"><DocumentThumbnail item={item} externalMode={documentDragMode === 'external'} onDragStart={event => { event.stopPropagation(); documentDragStart(event,item); }} onExternalDrag={event => externalDragStart(event,item)}/><span className="document-file-label" title={item.name}>{item.name}</span></span><span>{item.directory?'Carpeta':item.name.split('.').pop().toUpperCase()}</span><span>{patchFile?<button className="patch-apply-button" disabled={patchBusy} onClick={event=>{event.stopPropagation();applyPatch(item.path);}}>Aplicar y reiniciar</button>:item.directory?'—':formatSize(item.size)}</span></div>;})}
             {visibleEntries.length===0&&<div className="no-files">{isUpdatePath(activeFolder)?'Soltá aquí el ZIP de actualización.':'Esta carpeta está vacía.'}</div>}
           </div>
           <div className="document-status" role="status">{documentStatus}</div><div className="file-footnote">Elegí el destino del arrastre arriba: Mover entre paneles o Adjuntar afuera. Alt + arrastrar permite adjuntar afuera sin cambiar el modo. Ctrl permite copiar entre Documentos. Doble clic en una imagen abre el comparador. Arrastrá desde un espacio vacío para seleccionar varios archivos. Ctrl o Shift también selecciona varios; Ctrl+C, Ctrl+X y Ctrl+V siguen disponibles.</div>

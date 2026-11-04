@@ -25,7 +25,7 @@ if(process.type==='browser'){
  const write=(file,obj)=>fs.writeFileSync(path.join(qa,file),JSON.stringify(obj,null,2));
  const realDialog=dialog.showMessageBox.bind(dialog);
  dialog.showMessageBox=async(win,options)=>['Confirmar actualización de DocsHub','Actualización de DocsHub'].includes(options.title)?{response:0}:realDialog(win,options);
- dialog.showOpenDialog=async()=>({canceled:false,filePaths:[process.env.DOCSHUB_QA_PATCH]});
+ dialog.showOpenDialog=async(_win,options)=>({canceled:false,filePaths:[options?.properties?.includes('openDirectory')?path.join(qa,'focus-project'):process.env.DOCSHUB_QA_PATCH]});
  app.on('web-contents-created',(_event,wc)=>{
   const load=wc.loadURL.bind(wc);wc.loadURL=(url,...args)=>/^https?:/i.test(url)?Promise.resolve():load(url,...args);
   const send=wc.send.bind(wc);wc.send=(channel,...args)=>{if(channel==='update-center-state'){try{fs.appendFileSync(path.join(qa,'progress.log'),JSON.stringify(args[0])+'\n');if(['installation','startup-check'].includes(args[0]?.stage)&&wc.getURL().includes('/.docshub-updates/'))capture(wc,'installer');}catch{}}return send(channel,...args);};
@@ -44,6 +44,7 @@ if(process.type==='browser'){
      })()`);
      const cookies=session.fromPartition('persist:workhub2-gpt-personal').cookies;let found=await cookies.get({name:'docshub-ci'});if(seed&&!found.length){await cookies.set({url:'https://example.com',name:'docshub-ci',value:'retained',expirationDate:Date.now()/1000+86400});found=await cookies.get({name:'docshub-ci'});}
      await cookies.flushStore();if(seed)fs.writeFileSync(path.join(qa,'seeded'),'yes');
+     if(seed&&path.basename(qa)==='install')await require('./documents-focus-test.cjs')(win,qa);
      const handle=win.getNativeWindowHandle().readBigUInt64LE().toString();
      const windowIcon=JSON.parse(await new Promise((resolve,reject)=>require('node:child_process').execFile('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',path.join(__dirname,'window-icon.ps1'),'-WindowHandle',handle],{encoding:'utf8',timeout:15000},(error,stdout)=>error?reject(error):resolve(stdout))));
      const shellIcon=await app.getFileIcon(path.join(root,'assets',fs.existsSync(path.join(root,'assets/docshub-taskbar.ico'))?'docshub-taskbar.ico':'docshub.ico'),{size:'normal'});const pixels=shellIcon.toBitmap();let shellYellow=0;for(let i=0;i<pixels.length;i+=4){if(pixels[i+3]>100&&pixels[i+2]>140&&pixels[i+1]>90&&pixels[i]<180&&pixels[i+2]>=pixels[i+1])shellYellow++;}
